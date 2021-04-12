@@ -1,0 +1,22 @@
+.header {
+    padding: 60px;
+    text-align: center;
+    background: url("/static/home/bg_GenCo1.png") center no-repeat;
+    color: white;
+    font-size: 30px;
+}
+
+.footer {
+    background: #2e6da4 none repeat scroll 0 0;
+    color: white;
+    padding: 1rem 1.5rem 1rem;
+}
+
+.footer h4 {
+    color: white;
+}
+
+.footer p {
+    padding: 1px;
+    margin-bottom: 5px;
+}

@@ -17,9 +17,7 @@ from model_utils.managers import InheritanceManager
 class CategoryManager(models.Manager):
 
     def new_category(self, category):
-        new_category = self.create(category=re.sub('\s+', '-', category)
-                                   .lower())
-
+        new_category = self.create(category=re.sub('\s+', '-', category).lower())
         new_category.save()
         return new_category
 
