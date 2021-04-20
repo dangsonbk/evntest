@@ -30,11 +30,9 @@ class SittingFilterTitleMixin(object):
 
 class QuizListView(ListView):
     model = Quiz
-
     def get_queryset(self):
         queryset = super(QuizListView, self).get_queryset()
         return queryset.filter(draft=False)
-
 
 class QuizDetailView(DetailView):
     model = Quiz
@@ -84,8 +82,7 @@ class QuizUserProgressView(TemplateView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super(QuizUserProgressView, self)\
-            .dispatch(request, *args, **kwargs)
+        return super(QuizUserProgressView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(QuizUserProgressView, self).get_context_data(**kwargs)
@@ -99,9 +96,7 @@ class QuizMarkingList(QuizMarkerMixin, SittingFilterTitleMixin, ListView):
     model = Sitting
 
     def get_queryset(self):
-        queryset = super(QuizMarkingList, self).get_queryset()\
-                                               .filter(complete=True)
-
+        queryset = super(QuizMarkingList, self).get_queryset().filter(complete=True)
         user_filter = self.request.GET.get('user_filter')
         if user_filter:
             queryset = queryset.filter(user__username__icontains=user_filter)
@@ -137,6 +132,7 @@ class QuizTake(FormView):
     template_name = 'question.html'
     result_template_name = 'result.html'
     single_complete_template_name = 'single_complete.html'
+    login_request_template_name = 'login.html'
 
     def dispatch(self, request, *args, **kwargs):
         self.quiz = get_object_or_404(Quiz, url=self.kwargs['quiz_name'])
@@ -149,10 +145,10 @@ class QuizTake(FormView):
             self.logged_in_user = self.request.user.is_authenticated
 
         if self.logged_in_user:
-            self.sitting = Sitting.objects.user_sitting(request.user,
-                                                        self.quiz)
+            self.sitting = Sitting.objects.user_sitting(request.user, self.quiz)
         else:
-            self.sitting = self.anon_load_sitting()
+            return render(request, self.login_request_template_name)
+            # self.sitting = self.anon_load_sitting()
 
         if self.sitting is False:
             return render(request, self.single_complete_template_name)
