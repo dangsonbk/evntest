@@ -4,10 +4,36 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-  <h2>Login</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-  </form>
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+        <form class="box" id="login-form" method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          {% if form.errors %}
+            <p class=" label has-text-danger">
+                Tên đăng nhập hoặc mật khẩu không đúng, vui lòng thử lại.
+            </p>
+          {% endif %}
+          <div class="field">
+            <label class="label has-text-left">Username</label>
+            <div class="control">
+              <input class="input" name="username"  type="text" placeholder="tên đăng nhập">
+            </div>
+          </div>
+          
+          <div class="field">
+            <label class="label has-text-left">Password</label>
+            <div class="control">
+              <input class="input" name="password"  type="password" placeholder="mật khẩu">
+            </div>
+          </div>
+          <div class="field">
+            <p class="control">
+              <button class="button is-success">Login</button>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 {% endblock %}
