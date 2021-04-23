@@ -12,7 +12,24 @@ from django.utils.timezone import now
 from django.conf import settings
 
 from model_utils.managers import InheritanceManager
+from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    @receiver(post_save, sender=User)
+    def create_user_profile(self, sender, instance, created, **kwargs):
+        if created:
+            self.create(user=instance)
+
+    @receiver(post_save, sender=User)
+    def save_user_profile(self, sender, instance, **kwargs):
+        instance.profile.save()
+
+    class Meta:
+        verbose_name = _("Profile")
+        verbose_name_plural = _("Profiles")
 
 class CategoryManager(models.Manager):
 
@@ -23,21 +40,14 @@ class CategoryManager(models.Manager):
 
 
 class Category(models.Model):
-
-    category = models.CharField(
-        verbose_name=_("Category"),
-        max_length=250, blank=True,
-        unique=True, null=True)
-
+    category = models.CharField(verbose_name=_("Category"), max_length=250, blank=True, unique=True, null=True)
     objects = CategoryManager()
-
     class Meta:
         verbose_name = _("Category")
         verbose_name_plural = _("Categories")
 
     def __str__(self):
         return self.category
-
 
 class SubCategory(models.Model):
 

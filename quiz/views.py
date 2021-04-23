@@ -7,12 +7,16 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, TemplateView, FormView
 
 from .forms import QuestionForm, EssayForm
-from .models import Quiz, Category, Progress, Sitting, Question
+from .models import Quiz, Category, Progress, Sitting, Question, Profile
 from essay.models import Essay_Question
 
+def quizUserProfile():
+    model = Profile
+
+# def Profile(request):
+    # return render(request=request, template_name="profile.html", context={"user": request.user})
 
 class QuizMarkerMixin(object):
-    @method_decorator(login_required)
     @method_decorator(permission_required('quiz.view_sittings'))
     def dispatch(self, *args, **kwargs):
         return super(QuizMarkerMixin, self).dispatch(*args, **kwargs)
