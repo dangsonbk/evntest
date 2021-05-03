@@ -16,8 +16,20 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
+GENDER_CHOICES = [
+    ("0", _("Male")),
+    ("1", _("Female")),
+]
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default="0")
+    department = models.CharField(max_length=512, null=True, blank=True)
+    title = models.CharField(max_length=512, null=True, blank=True)
+    dob = models.CharField(max_length=10, null=True, blank=True)
+    id_card = models.CharField(max_length=12, null=True, blank=True)
+    branch = models.CharField(max_length=512, null=True, blank=True)
+
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:

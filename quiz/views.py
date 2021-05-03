@@ -2,19 +2,52 @@ import random
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView, TemplateView, FormView
+from django.views.generic import DetailView, ListView, TemplateView, FormView, UpdateView
+from django.contrib.auth import views, login as auth_login
 
-from .forms import QuestionForm, EssayForm
+from .forms import QuestionForm, EssayForm, QuizProfileForm
 from .models import Quiz, Category, Progress, Sitting, Question, Profile
 from essay.models import Essay_Question
 
-def quizUserProfile():
-    model = Profile
+# def quizUserProfile():
+#     model = Profile
 
 # def Profile(request):
     # return render(request=request, template_name="profile.html", context={"user": request.user})
+
+
+class CustomLoginView(views.LoginView):
+    def form_valid(self, form):
+        user = form.get_user()
+        auth_login(self.request, user)
+        profile_objs = Profile.objects.filter(user=user)
+        if profile_objs.exists():
+            profile_obj = profile_objs.first()
+            profile_id = profile_obj.id
+            profile_url = reverse('quiz_profile', args=[profile_id])
+            return redirect(profile_url)
+
+        return super(CustomLoginView, self).form_valid(form)
+
+
+class QuizProfileView(UpdateView):
+    model = Profile
+    template_name = 'quiz/user_profile.html'
+    form_class = QuizProfileForm
+    success_url = '/'
+
+    def form_valid(self, form):
+        redirect_url = super(QuizProfileView, self).form_valid(form)
+        user_obj = form.instance.user
+        user_obj.first_name = form.cleaned_data['full_name']
+        user_obj.save()
+        return redirect_url
+
+        return super().form_valid(form)
+
 
 class QuizMarkerMixin(object):
     @method_decorator(permission_required('quiz.view_sittings'))
