@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-09 10:52+0700\n"
+"POT-Creation-Date: 2021-05-09 13:21+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
 #: quiz/admin.py:28 quiz/admin.py:30 quiz/models.py:604
 msgid "Questions"
 msgstr ""
@@ -414,7 +415,7 @@ msgstr ""
 msgid "Check"
 msgstr ""
 
-#: quiz/templates/quiz/category_list.html:3
+#: quiz/templates/quiz/category_list.html:3 quiz/templates/quiz/detail.html:4
 #: quiz/templates/quiz/quiz_list.html:3 quiz/templates/quiz/sitting_list.html:3
 #: quiz/templates/quiz/user_profile.html:4
 msgid "All Quizzes"
@@ -423,6 +424,30 @@ msgstr ""
 #: quiz/templates/quiz/category_list.html:6
 msgid "Category list"
 msgstr ""
+
+#: quiz/templates/quiz/detail.html:64
+msgid "QuestionNumber"
+msgstr "Câu"
+
+#: quiz/templates/quiz/detail.html:75
+msgid "PreviousQuestion"
+msgstr "Câu trước"
+
+#: quiz/templates/quiz/detail.html:78
+msgid "NextQuestion"
+msgstr "Câu sau"
+
+#: quiz/templates/quiz/detail.html:84
+msgid "HelpQuestionKeyword"
+msgstr "Ấn phím: &larr; Câu trước và &rarr; Câu sau"
+
+#: quiz/templates/quiz/detail.html:95
+msgid "ListQuestion"
+msgstr "Danh mục câu hỏi"
+
+#: quiz/templates/quiz/detail.html:118
+msgid "SubmitQuiz"
+msgstr "Nộp bài"
 
 #: quiz/templates/quiz/quiz_detail.html:11
 msgid "You will only get one attempt at this quiz"

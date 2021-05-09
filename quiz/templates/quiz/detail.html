@@ -1,0 +1,166 @@
+{% extends 'base_v2.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans "All Quizzes" %}{% endblock %}
+{% block style %}
+<link rel="stylesheet" href="{% static '/css/bulma-calendar/bulma-calendar.min.css' %}">
+<style type="text/css">
+    .field-label {
+        flex-grow: 2;
+    }
+
+    .question-detail {
+        padding-top: 1rem;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .question-detail .left-content .card-footer {
+        border-top: 0;
+    }
+
+    .question-detail .right-content .button {
+        min-width: 54px;
+    }
+
+    .header {
+        padding: 60px 60px 30px 60px;
+    }
+
+    .is-small.input,
+    .is-small.textarea {
+        font-size: 0.8rem;
+    }
+
+    .datetimepicker-dummy .datetimepicker-dummy-wrapper {
+        border-color: #dbdbdb;
+        border-radius: 4px;
+    }
+
+    .datetimepicker-dummy .datetimepicker-dummy-wrapper::before,
+    .datetimepicker-dummy .datetimepicker-dummy-wrapper:before {
+        background-color: #3498db;
+    }
+</style>
+<script src="{% static '/js/bulma-calendar/bulma-calendar.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="container is-max-widescreen">
+    <section class="section question-detail">
+        <div class="columns is-centered">
+            <div class="column is-two-third left-content">
+                <div class="card">
+                    <header class="card-header">
+                        <p class="card-header-title">
+                            Quiz name
+                        </p>
+                        <div class="is-pulled-right has-text-right">
+                            <p class="card-header-title has-text-danger">59:59</p>
+                        </div>
+                    </header>
+                    <div class="card-content">
+                        <p><strong class="is-italic" style="text-decoration: underline;">{% trans 'QuestionNumber' %}
+                                5:</strong> Đầu dây nối đất vào trang bị nối đất phải:</p>
+                        <div class="block mt-4 mb-4 ml-4">
+                            <div class="control">
+                                <label class="radio">
+                                    <input type="radio" name="answer">
+                                    A. Nếu không hàn được thì phải buộc xoắn thật chắc chắn.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="block mb-4 ml-4">
+                            <div class="control">
+                                <label class="radio">
+                                    <input type="radio" name="answer">
+                                    B. Cực nối đất, vòng nối đất phải hàn.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="block mb-4 ml-4">
+                            <div class="control">
+                                <label class="radio">
+                                    <input type="radio" name="answer">
+                                    C. Làm như cách A hoặc cách B đều được.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="card-footer">
+                        <div class="card-footer-item has-text-centered">
+                            <div class="hero-body p-0">
+                                <div class="title mb-4">
+                                    <button class="button is-warning mr-2">
+                                        <span class="icon is-small">
+                                            <i class="fas fa-arrow-alt-circle-left"></i>
+                                        </span>
+                                        <span>{% trans 'PreviousQuestion' %}</span>
+                                    </button>
+                                    <button class="button is-info">
+                                        <span>{% trans 'NextQuestion' %}</span>
+                                        <span class="icon is-small">
+                                            <i class="fas fa-arrow-alt-circle-right"></i>
+                                        </span>
+                                    </button>
+                                </div>
+                                <p class="mb-4"><strong>{% trans 'HelpQuestionKeyword' %}</strong></p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+
+            <div class="column is-one-third right-content">
+                <div class="card">
+                    <header class="card-header">
+                        <p class="card-header-title is-uppercase is-centered">
+                            {% trans 'ListQuestion' %}
+                        </p>
+                    </header>
+                    <div class="card-content">
+                        {% for i in total_question %}
+                        {% if forloop.counter == 1 %}
+                        <div class="buttons mb-1">
+                            {% endif %}
+                            <button class="button {% if forloop.counter < 5 %}is-info{% else %}is-light{% endif %}">
+                                <span>{{ forloop.counter }}</span>
+                            </button>
+                            {% if forloop.counter|divisibleby:5 %}
+                        </div>
+                        <div class="buttons mb-1">
+                            {% endif %}
+                            {% if forloop.counter == total_question %}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <footer class="card-footer">
+                        <div class="card-footer-item has-text-centered">
+                            <button class="button is-success">
+                                <span>{% trans 'SubmitQuiz' %}</span>
+                                <span class="icon is-small">
+                                    <i class="fas fa-arrow-alt-circle-up"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script type="text/javascript">
+    var options = {
+        'type': 'date',
+        'dateFormat': 'DD/MM/YYYY',
+        'showHeader': false,
+        'showFooter': false,
+        'color': 'info',
+        'lang': 'vi'
+    };
+    var calendars = bulmaCalendar.attach('input[name="dob"]', options);
+</script>
+{% endblock %}
