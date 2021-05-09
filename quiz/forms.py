@@ -5,18 +5,18 @@ from django.core.exceptions import ValidationError
 from quiz.models import Profile
 
 BRANCH_CHOICES = [
-    ('tong-cong-ty-phat-dien-1', _('Tổng công ty Phát điện 1')),
-    ('cong-ty-co-phan-nhiet-dien-quang-ninh', _('Công ty Cổ phần Nhiệt điện Quảng Ninh')),
-    ('cong-ty-co-phan-thuy0dien-da-nhim-ham-thuan-da-mi', _('Công ty Cổ phần Thủy điện Đa Nhim-Hàm Thuận-Đa Mi')),
-    ('cong-ty-nhiet-dien-duyen-hai', _('Công ty Nhiệt điện Duyên Hải')),
-    ('cong-ty-nhiet-dien-nghi-son', _('Công ty Nhiệt điện Nghi Sơn')),
-    ('cong-ty-nhiet-dien-uong-bi', _('Công ty Nhiệt điện Uông Bí')),
-    ('cong-ty-thuy-dien-dai-ninh', _('Công ty Thủy điện Đại Ninh')),
-    ('cong-ty-thuy-dien-dong-nai', _('Công ty Thủy điện Đồng Nai')),
-    ('cong-ty-thuy-dien-ban-ve', _('Công ty Thủy điện Bản Vẽ')),
-    ('cong-ty-thuy-dien-song-tranh', _('Công ty Thủy điện Sông Tranh')),
-    ('cong-ty-co-phan-phat-trien-dien-luc-viet-nam', _('Công ty Cổ phần Phát triển Điện lực Việt Nam')),
-    ('thuc-tap-vien-dhd', _('Thực tập viên DHD'))
+    ('tong-cong-ty-phat-dien-1', _('tong-cong-ty-phat-dien-1')),
+    ('cong-ty-co-phan-nhiet-dien-quang-ninh', _('cong-ty-co-phan-nhiet-dien-quang-ninh')),
+    ('cong-ty-co-phan-thuy-dien-da-nhim-ham-thuan-da-mi', _('cong-ty-co-phan-thuy0dien-da-nhim-ham-thuan-da-mi')),
+    ('cong-ty-nhiet-dien-duyen-hai', _('cong-ty-nhiet-dien-duyen-hai')),
+    ('cong-ty-nhiet-dien-nghi-son', _('cong-ty-nhiet-dien-nghi-son')),
+    ('cong-ty-nhiet-dien-uong-bi', _('cong-ty-nhiet-dien-uong-bi')),
+    ('cong-ty-thuy-dien-dai-ninh', _('cong-ty-thuy-dien-dai-ninh')),
+    ('cong-ty-thuy-dien-dong-nai', _('cong-ty-thuy-dien-dong-nai')),
+    ('cong-ty-thuy-dien-ban-ve', _('cong-ty-thuy-dien-ban-ve')),
+    ('cong-ty-thuy-dien-song-tranh', _('cong-ty-thuy-dien-song-tranh')),
+    ('cong-ty-co-phan-phat-trien-dien-luc-viet-nam', _('cong-ty-co-phan-phat-trien-dien-luc-viet-nam')),
+    ('thuc-tap-vien-dhd', _('thuc-tap-vien-dhd'))
 ]
 
 
@@ -77,7 +77,7 @@ class QuizProfileForm(forms.ModelForm):
         labels = {
             'gender': _('Gender'),
             'department': _('Department'),
-            'title': _('Title'),
+            'title': _('Position'),
             'dob': _('DoB'),
             'id_card': _('Identity Card'),
             'branch': _('Branch')

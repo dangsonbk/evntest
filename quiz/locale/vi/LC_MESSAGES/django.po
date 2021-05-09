@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-03 08:54+0700\n"
+"POT-Creation-Date: 2021-05-09 10:52+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,57 +17,56 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
 #: quiz/admin.py:28 quiz/admin.py:30 quiz/models.py:604
 msgid "Questions"
 msgstr ""
 
 #: quiz/forms.py:8
-msgid "Tổng công ty Phát điện 1"
+msgid "tong-cong-ty-phat-dien-1"
 msgstr "Tổng công ty Phát điện 1"
 
 #: quiz/forms.py:9
-msgid "Công ty Cổ phần Nhiệt điện Quảng Ninh"
+msgid "cong-ty-co-phan-nhiet-dien-quang-ninh"
 msgstr "Công ty Cổ phần Nhiệt điện Quảng Ninh"
 
 #: quiz/forms.py:10
-msgid "Công ty Cổ phần Thủy điện Đa Nhim-Hàm Thuận-Đa Mi"
+msgid "cong-ty-co-phan-thuy0dien-da-nhim-ham-thuan-da-mi"
 msgstr "Công ty Cổ phần Thủy điện Đa Nhim-Hàm Thuận-Đa Mi"
 
 #: quiz/forms.py:11
-msgid "Công ty Nhiệt điện Duyên Hải"
+msgid "cong-ty-nhiet-dien-duyen-hai"
 msgstr "Công ty Nhiệt điện Duyên Hải"
 
 #: quiz/forms.py:12
-msgid "Công ty Nhiệt điện Nghi Sơn"
+msgid "cong-ty-nhiet-dien-nghi-son"
 msgstr "Công ty Nhiệt điện Nghi Sơn"
 
 #: quiz/forms.py:13
-msgid "Công ty Nhiệt điện Uông Bí"
+msgid "cong-ty-nhiet-dien-uong-bi"
 msgstr "Công ty Nhiệt điện Uông Bí"
 
 #: quiz/forms.py:14
-msgid "Công ty Thủy điện Đại Ninh"
+msgid "cong-ty-thuy-dien-dai-ninh"
 msgstr "Công ty Thủy điện Đại Ninh"
 
 #: quiz/forms.py:15
-msgid "Công ty Thủy điện Đồng Nai"
-msgstr Công ty Thủy điện Đồng Nai"
+msgid "cong-ty-thuy-dien-dong-nai"
+msgstr "Công ty Thủy điện Đồng Nai"
 
 #: quiz/forms.py:16
-msgid "Công ty Thủy điện Bản Vẽ"
+msgid "cong-ty-thuy-dien-ban-ve"
 msgstr "Công ty Thủy điện Bản Vẽ"
 
 #: quiz/forms.py:17
-msgid "Công ty Thủy điện Sông Tranh"
+msgid "cong-ty-thuy-dien-song-tranh"
 msgstr "Công ty Thủy điện Sông Tranh"
 
 #: quiz/forms.py:18
-msgid "Công ty Cổ phần Phát triển Điện lực Việt Nam"
+msgid "cong-ty-co-phan-phat-trien-dien-luc-viet-nam"
 msgstr "Công ty Cổ phần Phát triển Điện lực Việt Nam"
 
 #: quiz/forms.py:19
-msgid "Thực tập viên DHD"
+msgid "thuc-tap-vien-dhd"
 msgstr "Thực tập viên DHD"
 
 #: quiz/forms.py:40
@@ -94,8 +93,8 @@ msgstr "Giới tính"
 msgid "Department"
 msgstr "Phòng ban"
 
-#: quiz/forms.py:80 quiz/models.py:87 quiz/templates/quiz/quiz_list.html:12
-msgid "Title"
+#: quiz/forms.py:80
+msgid "Position"
 msgstr "Chức danh"
 
 #: quiz/forms.py:81
@@ -143,6 +142,10 @@ msgstr ""
 
 #: quiz/models.py:78
 msgid "Sub-Categories"
+msgstr ""
+
+#: quiz/models.py:87 quiz/templates/quiz/quiz_list.html:12
+msgid "Title"
 msgstr ""
 
 #: quiz/models.py:91
@@ -413,7 +416,7 @@ msgstr ""
 
 #: quiz/templates/quiz/category_list.html:3
 #: quiz/templates/quiz/quiz_list.html:3 quiz/templates/quiz/sitting_list.html:3
-#: quiz/templates/quiz/user_profile.html:3
+#: quiz/templates/quiz/user_profile.html:4
 msgid "All Quizzes"
 msgstr ""
 
@@ -495,7 +498,7 @@ msgstr ""
 msgid "There are no matching quizzes"
 msgstr ""
 
-#: quiz/templates/quiz/user_profile.html:70
+#: quiz/templates/quiz/user_profile.html:89
 msgid "Confirm"
 msgstr "Xác nhận"
 
