@@ -6,9 +6,7 @@ from quiz.models import Question
 class TF_Question(Question):
     correct = models.BooleanField(blank=False,
                                   default=False,
-                                  help_text=_("Tick this if the question "
-                                              "is true. Leave it blank for"
-                                              " false."),
+                                  help_text=_("Tick this if the question is true. Leave it blank for false."),
                                   verbose_name=_("Correct"))
 
     def check_if_correct(self, guess):
@@ -37,6 +35,6 @@ class TF_Question(Question):
         return str(guess)
 
     class Meta:
-        verbose_name = _("True/False Question")
-        verbose_name_plural = _("True/False Questions")
+        verbose_name = _("Câu hỏi True/False")
+        verbose_name_plural = _("Câu hỏi True/False")
         ordering = ['category']
