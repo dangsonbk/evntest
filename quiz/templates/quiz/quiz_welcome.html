@@ -1,0 +1,135 @@
+{% extends 'base_v2.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans "All Quizzes" %}{% endblock %}
+{% block style %}
+<link rel="stylesheet" href="{% static '/css/bulma-calendar/bulma-calendar.min.css' %}">
+<style type="text/css">
+    .field-label {
+        flex-grow: 2;
+    }
+
+    .question-detail {
+        padding-top: 1rem;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .question-detail .left-content .card-footer {
+        border-top: 0;
+    }
+
+    .question-detail .right-content .button {
+        min-width: 54px;
+    }
+
+    .header {
+        padding: 60px 60px 30px 60px;
+    }
+
+    .is-small.input,
+    .is-small.textarea {
+        font-size: 0.8rem;
+    }
+
+    .datetimepicker-dummy .datetimepicker-dummy-wrapper {
+        border-color: #dbdbdb;
+        border-radius: 4px;
+    }
+
+    .datetimepicker-dummy .datetimepicker-dummy-wrapper::before,
+    .datetimepicker-dummy .datetimepicker-dummy-wrapper:before {
+        background-color: #3498db;
+    }
+</style>
+<script src="{% static '/js/bulma-calendar/bulma-calendar.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="container is-max-widescreen">
+    <section class="section question-detail">
+        <div class="columns is-centered">
+            <div class="column is-two-third left-content">
+                <div class="card">
+                    <header class="card-header">
+                        <p class="card-header-title">
+                            Phần mềm thi trắc nghiệm trực tuyến EVNGENCO1
+                        </p>
+                        <div class="is-pulled-right has-text-right">
+                            <p class="card-header-title has-text-danger">Thời gian thi: 1 giờ</p>
+                        </div>
+                    </header>
+                    <div class="card-content">
+                        <h2>Đề thi</h2>
+                        <p>Bạn đã được kích hoạt để tham gia thi: {{ quiz_name }}</p>
+                        <p>Có tổng số {{ quiz_question_count }} câu hỏi trong đề thi</p>
+                        <p>Suy nghĩ kỹ trước khi trả lời câu hỏi. Số điểm tối thiểu phải đạt để qua bài thi là: {{ quiz_minimum_score }}</p>
+                        <h2>Thời gian</h2>
+                        <p>Thời gian hoàn thành bài thi là: 60 phút</p>
+                        <p>Khi còn 10 phút thời gian sẽ chuyển sang màu đỏ để nhắc nhở.</p>
+                        <h2>Trả lời</h2>
+                        <p>Chú ý những câu hỏi có nhiều đáp án đúng</p>
+                        <p>Câu trả lời được tính khi đúng toàn bộ các đáp án và không có đáp án sai.</p>
+                    </div>
+                    <footer class="card-footer">
+                        <div class="card-footer-item has-text-centered">
+                            <div class="hero-body p-0">
+                                <div class="title mb-4">
+                                    <button class="button is-warning mr-2">
+                                        <span class="icon is-small">
+                                            <i class="fas fa-arrow-alt-circle-left"></i>
+                                        </span>
+                                        <span>Quay lại</span>
+                                    </button>
+                                    <button class="button is-info">
+                                        <span>Bắt đầu</span>
+                                        <span class="icon is-small">
+                                            <i class="fas fa-arrow-alt-circle-right"></i>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+
+            <div class="column is-one-third right-content">
+                <div class="card">
+                    <header class="card-header">
+                        <p class="card-header-title is-uppercase is-centered">
+                            Danh sách câu hỏi
+                        </p>
+                    </header>
+                    <div class="card-content">
+                        <p>Danh sách câu hỏi sẽ được cập nhật khi bắt đầu bài thi</p>
+                    </div>
+                    <footer class="card-footer">
+                        <div class="card-footer-item has-text-centered">
+                            <button class="button is-success">
+                                <span>Bắt đầu</span>
+                                <span class="icon is-small">
+                                    <i class="fas fa-arrow-alt-circle-up"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script type="text/javascript">
+    var options = {
+        'type': 'date',
+        'dateFormat': 'DD/MM/YYYY',
+        'showHeader': false,
+        'showFooter': false,
+        'color': 'info',
+        'lang': 'vi'
+    };
+    var calendars = bulmaCalendar.attach('input[name="dob"]', options);
+</script>
+{% endblock %}

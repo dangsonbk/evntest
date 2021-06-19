@@ -38,12 +38,14 @@ def QuizDetailExampleView(request):
     ctx = {'total_question': range(50)}
     return render(request=request, template_name="quiz/detail.html", context=ctx)
 
+def QuizWelcomeView(request):
+    return render(request=request, template_name="quiz/quiz_welcome.html")
 
 class QuizProfileView(UpdateView):
     model = Profile
     template_name = 'quiz/user_profile.html'
     form_class = QuizProfileForm
-    success_url = '/quiz-question'  # TODO: change here to redirect quiz list
+    success_url = '/quiz-welcome'  # TODO: change here to redirect quiz list
 
     def form_valid(self, form):
         redirect_url = super(QuizProfileView, self).form_valid(form)

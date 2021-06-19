@@ -11,6 +11,7 @@ urlpatterns = [
     # url(r'^profile/', view=views.quizUserProfile(), name='quiz_user_profile'),
     url(r'^profile/(?P<pk>\d+)/$', view=views.QuizProfileView.as_view(), name='quiz_profile'),
     url(r'^quiz-question/$', view=views.QuizDetailExampleView, name='quiz_question'),
+    url(r'^quiz-welcome/$', view=views.QuizWelcomeView, name='quiz_ưelcome'),
     url(r'^category/$', view=views.CategoriesListView.as_view(), name='quiz_category_list_all'),
     url(r'^category/(?P<category_name>[\w|\W-]+)/$', view=views.ViewQuizListByCategory.as_view(), name='quiz_category_list_matching'),
     url(r'^progress/$', view=views.QuizUserProgressView.as_view(), name='quiz_progress'),
