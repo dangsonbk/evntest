@@ -20,3 +20,46 @@
     padding: 1px;
     margin-bottom: 5px;
 }
+
+.field-label {
+    flex-grow: 2;
+}
+
+.question-detail {
+    padding-top: 1rem;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.question-detail .left-content .card-footer {
+    border-top: 0;
+}
+
+.question-detail .right-content .button {
+    min-width: 54px;
+}
+
+.header {
+    padding: 60px 60px 30px 60px;
+}
+
+.is-small.input,
+.is-small.textarea {
+    font-size: 0.8rem;
+}
+
+.datetimepicker-dummy .datetimepicker-dummy-wrapper {
+    border-color: #dbdbdb;
+    border-radius: 4px;
+}
+
+.datetimepicker-dummy .datetimepicker-dummy-wrapper::before,
+.datetimepicker-dummy .datetimepicker-dummy-wrapper:before {
+    background-color: #3498db;
+}
+
+
+.questions .button {
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+}

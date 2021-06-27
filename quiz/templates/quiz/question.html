@@ -1,0 +1,70 @@
+{% extends "base_v2.html" %}
+{% load i18n%}
+
+{% load quiz_tags %}
+
+{% block title %} {{ quiz.title }} {% endblock %}
+
+{% block content %}
+<div style="width: 100%; display:inline-block;">
+	<p class="title is-4 is-spaced is-pulled-left">
+		{{ quiz.title }}
+	</p>
+	<p class="is-pulled-right">
+		Thời lượng còn lại: <b>25:00</b>
+	</p>
+</div>
+
+<div class="columns">
+	<div class="column is-three-quarters pt-0">
+		<div class="card">
+			<div class="card-content" style="min-height: 65vh;">
+				<div>
+					<p><b>Câu hỏi:</b></p>
+					<p class="ml-4 mt-4">{{ question.content }}</p>
+					<p class="mt-4"><b>Trả lời:</b></p>
+					<ul class="list-group ml-4 mt-4">
+						{% for answer in form.answers %}
+							<li class="list-group-item">
+								{{ answer }}
+							</li>
+						{% endfor %}
+				  	</ul>
+				</div>
+			</div>
+			<footer class="card-footer">
+				<div class="card-footer-item has-text-centered">
+					<a href="{% url 'quiz_question' quiz_name=quiz.url %}" class="button is-info mr-4">
+						<span>Tiếp theo</span>
+					</a>
+					<a href="{% url 'quiz_question' quiz_name=quiz.url %}" class="button is-warning">
+						<span>Lưu lại</span>
+					</a>
+				</div>
+			</footer>
+		</div>
+	</div>
+
+	<div class="column is-one-quarter pt-0 questions">
+		<div class="card">
+			<div class="card-content" style="min-height: 70vh;">
+				{% for ques in quiz.question_set.all %}
+					{% if forloop.counter == 1 %}
+						<div class="buttons mb-1">
+					{% endif %}
+						<button class="button {% if ques.id == question.id %}is-light{% else %}is-info{% endif %}">
+							<span>{{ forloop.counter }}</span>
+						</button>
+					{% if forloop.counter|divisibleby:5 %}
+						</div>
+						<div class="buttons mb-1">
+					{% endif %}
+					{% if forloop.counter == quiz.question_set.all|length %}
+						</div>
+					{% endif %}
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

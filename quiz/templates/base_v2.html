@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load utils_tag %}
 <!DOCTYPE html>
 <html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
     dir="ltr">
@@ -7,7 +8,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>{% trans "Example Quiz Website" %} | {% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
     <meta name="description" content="{% block description %}{% endblock %}">
 
     <!-- styles -->
@@ -23,29 +24,66 @@
 </head>
 
 <body>
-    <div class="header">
-    </div>
-    <div class="container is-max-widescreen">
+    <div class="header mb-4"></div>
+<!--    <div class="container is-max-widescreen">-->
+<!--        <div class="columns">-->
+<!--            <div class="column">-->
+<!--                <nav class="breadcrumb is-pulled-right" aria-label="breadcrumbs">-->
+<!--                    <ul>-->
+<!--                        <li>-->
+<!--                            <a href="{% url 'logout' %}">-->
+<!--                                <span>{% trans 'Logout' %}</span>-->
+<!--                                <span class="icon is-small">-->
+<!--                                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>-->
+<!--                                </span>-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                </nav>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+    <div class="container mb-4" style="min-height: 70vh;">
         <div class="columns">
-            <div class="column">
-                <nav class="breadcrumb is-pulled-right" aria-label="breadcrumbs">
-                    <ul>
-                        <li>
+            <div class="column is-one-quarter">
+                <div class="card">
+                    <div class="card-content" style="min-height: 70vh;">
+                        <p class="title is-4 is-spaced">
+                            <span class="icon">
+                                <i class="fas fa-user-circle"></i>
+                            </span>
+                            {{ user_info.user.first_name }}
+                            <span class="icon is-pulled-right">
+                                <i class="fas fa-cog"></i>
+                            </span>
+                        </p>
+                        <p><b>Mã số nhân viên:</b> {{ user_info.id_card }}</p>
+                        <p><b>Ngày sinh:</b> {{ user_info.dob }}</p>
+                        <p><b>Giới tính:</b> {{ user_info.get_gender_display }}</p>
+                        <p><b>Đơn vị:</b> {{ user_info.branch|branch_mapping }}</p>
+                        <p><b>Phòng ban:</b> {{ user_info.department }}</p>
+                        <p><b>Chức danh:</b> {{ user_info.position }}</p>
+                    </div>
+                    <footer class="card-footer">
+                        <div class="card-footer-item has-text-centered">
                             <a href="{% url 'logout' %}">
                                 <span>{% trans 'Logout' %}</span>
                                 <span class="icon is-small">
                                     <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
                                 </span>
                             </a>
-                        </li>
-                    </ul>
-                </nav>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+
+            <div class="column is-three-quarters">
+                {% block content %}
+                {% endblock %}
             </div>
         </div>
     </div>
-
-    {% block content %}
-    {% endblock %}
 
     <footer class="footer">
         <div class="container">

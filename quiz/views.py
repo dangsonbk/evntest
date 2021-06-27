@@ -23,12 +23,13 @@ class CustomLoginView(views.LoginView):
     def form_valid(self, form):
         user = form.get_user()
         auth_login(self.request, user)
-        profile_objs = Profile.objects.filter(user=user)
-        if profile_objs.exists():
-            profile_obj = profile_objs.first()
-            profile_id = profile_obj.id
-            profile_url = reverse('quiz_profile', args=[profile_id])
-            return redirect(profile_url)
+        return redirect(reverse('quiz_index'))
+        # profile_objs = Profile.objects.filter(user=user)
+        # if profile_objs.exists():
+        #     profile_obj = profile_objs.first()
+        #     profile_id = profile_obj.id
+        #     profile_url = reverse('quiz_profile', args=[profile_id])
+        #     return redirect(profile_url)
 
         return super(CustomLoginView, self).form_valid(form)
 
@@ -75,13 +76,17 @@ class SittingFilterTitleMixin(object):
 
 class QuizListView(ListView):
     model = Quiz
+    template_name = 'quiz/quiz_list_2.html'
+
     def get_queryset(self):
         queryset = super(QuizListView, self).get_queryset()
         return queryset.filter(draft=False)
 
+
 class QuizDetailView(DetailView):
     model = Quiz
     slug_field = 'url'
+    template_name = 'quiz/quiz_detail_2.html'
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -174,7 +179,8 @@ class QuizMarkingDetail(QuizMarkerMixin, DetailView):
 
 class QuizTake(FormView):
     form_class = QuestionForm
-    template_name = 'question.html'
+    # template_name = 'question.html'
+    template_name = 'quiz/question.html'
     result_template_name = 'result.html'
     single_complete_template_name = 'single_complete.html'
     login_request_template_name = 'login.html'

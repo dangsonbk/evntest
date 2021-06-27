@@ -1,0 +1,37 @@
+{% extends 'base_v2.html' %}
+{% load i18n %}
+{% block title %}
+	Danh sách các kỳ thi sát hạch
+{% endblock %}
+
+{% block content %}
+<p class="title is-4 is-spaced">
+	Danh sách các kỳ thi sát hạch:
+</p>
+<div class="card">
+	<div class="card-content" style="min-height: 70vh;">
+		<table style="width: 100%;">
+			<thead>
+				<tr>
+					<th width="60%">Kỳ thi</th>
+					<th width="25%">Thời gian thi</th>
+					<th width="15%">Trạng thái</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for quiz in quiz_list %}
+					<tr>
+					  	<td>
+							<a href="{% url 'quiz_start_page' slug=quiz.url %}">
+								{{ quiz.title }}
+							</a>
+						</td>
+					  	<td>#</td>
+					  	<td>#</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock %}

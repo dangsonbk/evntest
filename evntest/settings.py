@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'multichoice',
     'true_false',
     'essay',
+    'common',
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'common.context_processors.account_nav.account_nav',
             ],
         },
     },

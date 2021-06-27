@@ -1,0 +1,29 @@
+{% extends 'base_v2.html' %}
+{% load i18n %}
+{% block title %}
+{{ quiz.title }}
+{% endblock %}
+
+{% block content %}
+<p class="title is-4 is-spaced">
+    {{ quiz.title }}
+</p>
+<div class="card">
+	<div class="card-content" style="min-height: 70vh;">
+		<div>
+            <p><b>Thời gian hoàn thành thi:</b> 01/01/2021 ~ 31/12/2021</p>
+            <p><b>Tiến trình:</b> 0/{{ quiz.question_set.all|length }}</p>
+            <p><b>Thời lượng:</b> 30 phút</p>
+            <p><b>Thời lượng còn lại:</b> 30 phút</p>
+        </div>
+        <div class="has-text-centered mt-4">
+            <a href="{% url 'quiz_question' quiz_name=quiz.url %}" class="button is-info">
+                <span>Vào thi</span>
+                <span class="icon is-small">
+                    <i class="fas fa-arrow-alt-circle-right"></i>
+                </span>
+            </a>
+        </div>
+	</div>
+</div>
+{% endblock %}
