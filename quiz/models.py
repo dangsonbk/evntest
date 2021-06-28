@@ -76,7 +76,7 @@ class SubCategory(models.Model):
 
 class Quiz(models.Model):
 
-    title = models.CharField(verbose_name=_("Title"), max_length=60, blank=False)
+    title = models.CharField(verbose_name=_("Tên bài thi"), max_length=60, blank=False)
     description = models.TextField(verbose_name=_("Description"), blank=True, help_text=_("a description of the quiz"))
     url = models.SlugField(max_length=60, blank=False, help_text=_("a user friendly url"), verbose_name=_("user friendly url"))
     category = models.ForeignKey(Category, null=True, blank=True, verbose_name=_("Category"), on_delete=models.CASCADE)
@@ -89,8 +89,9 @@ class Quiz(models.Model):
     success_text = models.TextField(blank=True, help_text=_("Displayed if user passes."), verbose_name=_("Success Text"))
     fail_text = models.TextField(verbose_name=_("Fail Text"), blank=True, help_text=_("Displayed if user fails."))
     draft = models.BooleanField(blank=True, default=False, verbose_name=_("Draft"), help_text=_("If yes, the quiz is not displayed in the quiz list and can only be taken by users who can edit quizzes."))
-    start = models.DateTimeField(auto_now_add=True, verbose_name=_("Start"))
-    end = models.DateTimeField(null=True, blank=True, verbose_name=_("End"))
+    start = models.DateTimeField(auto_now_add=True, verbose_name=_("Thời gian mở đề"))
+    end = models.DateTimeField(null=True, blank=True, verbose_name=_("Hạn cuối làm bài"))
+    duration = models.IntegerField(default=30, verbose_name=_("Thời gian làm bài"))
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         self.url = re.sub('\s+', '-', self.url).lower()
         self.url = ''.join(letter for letter in self.url if letter.isalnum() or letter == '-')
