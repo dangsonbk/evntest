@@ -1,7 +1,7 @@
 {% extends "base_v2.html" %}
 {% load i18n%}
-
 {% load quiz_tags %}
+{% load utils_tag %}
 
 {% block title %} {{ quiz.title }} {% endblock %}
 
@@ -11,7 +11,7 @@
         {{ quiz.title }}
     </p>
     <p class="is-pulled-right">
-        Thời gian còn lại: <b id="countdown">25:00</b>
+        Thời gian còn lại: <b id="countdown">{{ quiz.duration|convert_duration }}</b>
     </p>
 </div>
 <div class="columns">
@@ -67,7 +67,8 @@
 
 {% block footer_script %}
 <script type="text/javascript">
-    var upgradeTime = 7200; // TODO: change here to real number
+    var upgradeTime = {{quiz.duration}} * 60;
+    upgradeTime = upgradeTime - 1;
     var seconds = upgradeTime;
     function timer() {
         var days        = Math.floor(seconds/24/60/60);
@@ -77,12 +78,19 @@
         var minutes     = Math.floor(minutesLeft/60);
         var remainingSeconds = seconds % 60;
         function pad(n) {
-            return (n < 10 ? "0" + n : n);
+            if (n < 10) {
+                if (n == 0) {
+                    return 0;
+                }
+                return "0" + n;
+            } else {
+                return n;
+            }
         }
         document.getElementById('countdown').innerHTML = pad(hours) + ":" + pad(minutes) + ":" + pad(remainingSeconds);
         if (seconds == 0) {
             clearInterval(countdownTimer);
-            document.getElementById('countdown').innerHTML = "Completed";
+            document.getElementById('countdown').innerHTML = "Hết giờ";
         } else {
             seconds--;
         }
