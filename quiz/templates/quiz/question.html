@@ -44,21 +44,24 @@
     <div class="column is-one-quarter pt-0 questions">
         <div class="card">
             <div class="card-content" style="min-height: 70vh;">
-                {% for ques in quiz.question_set.all %}
+                <button class="button is-info">
+                    <span>{{ question.id }} / {{ quiz.question_set.all|length }}</span>
+                </button>
+                <!-- {% for ques in quiz.question_set.all %}
                     {% if forloop.counter == 1 %}
                         <div class="buttons mb-1">
                     {% endif %}
                         <button class="button {% if ques.id == question.id %}is-light{% else %}is-info{% endif %}">
                             <span>{{ forloop.counter }}</span>
                         </button>
-                    {% if forloop.counter|divisibleby:5 %}
+                    {% if forloop.counter|divisibleby:4 %}
                         </div>
                         <div class="buttons mb-1">
                     {% endif %}
                     {% if forloop.counter == quiz.question_set.all|length %}
                         </div>
                     {% endif %}
-                {% endfor %}
+                {% endfor %} -->
             </div>
         </div>
     </div>

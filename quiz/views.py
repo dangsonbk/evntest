@@ -168,6 +168,8 @@ class QuizTake(FormView):
     login_request_template_name = 'login.html'
 
     def dispatch(self, request, *args, **kwargs):
+        cats = Profile.objects.get(user=self.request.user).department
+        print(cats.categories)
         self.quiz = get_object_or_404(Quiz, url=self.kwargs['quiz_name'])
         if self.quiz.draft and not request.user.has_perm('quiz.change_quiz'):
             raise PermissionDenied

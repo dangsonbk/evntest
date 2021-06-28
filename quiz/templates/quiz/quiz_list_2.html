@@ -13,9 +13,9 @@
 		<table style="width: 100%;">
 			<thead>
 				<tr>
-					<th width="60%">Kỳ thi</th>
+					<th width="50%">Kỳ thi</th>
 					<th width="25%">Thời gian thi</th>
-					<th width="15%">Trạng thái</th>
+					<th width="25%">Phân loại</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -27,7 +27,7 @@
 							</a>
 						</td>
 					  	<td>{{ quiz.start|date:"d/m/Y" }} - {{ quiz.end|date:"d/m/Y" }}</td>
-					  	<td>#</td>
+					  	<td>{{ quiz.category }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

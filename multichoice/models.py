@@ -10,9 +10,9 @@ import re
 
 
 ANSWER_ORDER_OPTIONS = (
-    ('content', _('Content')),
-    ('random', _('Random')),
-    ('none', _('None'))
+    ('content', _('Nội dung')),
+    ('random', _('Ngẫu nhiên')),
+    ('none', _('Không chọn'))
 )
 
 class MCQuestion(Question):
@@ -54,12 +54,12 @@ class Answer(models.Model):
         return self.content
 
     class Meta:
-        verbose_name = _("Answer")
-        verbose_name_plural = _("Answers")
+        verbose_name = _("Câu trả lời")
+        verbose_name_plural = _("Câu trả lời")
 class Upload(models.Model):
     quiz_file = models.FileField(upload_to='sample_quiz')
-    category = models.ForeignKey(Category, null=True, blank=True, verbose_name=_("Category"), on_delete=models.CASCADE)
-    imported = models.BooleanField(default=False, verbose_name=_("Đã nạp câu hỏi"))
+    category = models.ForeignKey(Category, verbose_name="Phân loại", null=True, blank=True, on_delete=models.CASCADE)
+    imported = models.BooleanField(default=False, verbose_name="Đã nạp câu hỏi")
     def save(self, *args, **kwargs):
         self.imported = True
         super().save(*args, **kwargs)
@@ -115,3 +115,7 @@ class Upload(models.Model):
 
     def __str__(self) -> str:
         return self.quiz_file.name
+
+    class Meta:
+        verbose_name = "Tải lên danh sách câu hỏi"
+        verbose_name_plural = "Tải lên danh sách câu hỏi"

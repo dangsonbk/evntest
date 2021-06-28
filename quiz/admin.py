@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Quiz, Category, SubCategory, Progress, Question, Profile
+from .models import Quiz, Category, SubCategory, Progress, Question, Profile, Department
 from multichoice.models import MCQuestion, Answer, Upload
 from true_false.models import TF_Question
 from essay.models import Essay_Question
@@ -89,6 +89,7 @@ admin.site.register(Category, CategoryAdmin)
 admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(MCQuestion, MCQuestionAdmin)
 admin.site.register(Upload)
+admin.site.register(Department)
 admin.site.register(Progress, ProgressAdmin)
 admin.site.register(TF_Question, TFQuestionAdmin)
 admin.site.register(Essay_Question, EssayQuestionAdmin)
