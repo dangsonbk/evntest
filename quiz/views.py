@@ -257,22 +257,12 @@ class QuizTake(FormView):
         self.sitting.remove_first_question()
 
     def final_result_user(self):
-        results = {
-            'quiz': self.quiz,
-            'score': self.sitting.get_current_score,
-            'max_score': self.sitting.get_max_score,
-            'percent': self.sitting.get_percent_correct,
-            'sitting': self.sitting,
-            'previous': self.previous,
-        }
-
+        results = { 'quiz': self.quiz, 'score': self.sitting.get_current_score,'max_score': self.sitting.get_max_score,'percent': self.sitting.get_percent_correct,'sitting': self.sitting,'previous': self.previous,}
         self.sitting.mark_quiz_complete()
 
         if self.quiz.answers_at_end:
-            results['questions'] =\
-                self.sitting.get_questions(with_answers=True)
-            results['incorrect_questions'] =\
-                self.sitting.get_incorrect_questions
+            results['questions'] = self.sitting.get_questions(with_answers=True)
+            results['incorrect_questions'] = self.sitting.get_incorrect_questions
 
         if self.quiz.exam_paper is False:
             self.sitting.delete()

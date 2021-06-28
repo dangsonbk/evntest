@@ -46,7 +46,7 @@ class Profile(models.Model):
 class CategoryManager(models.Manager):
 
     def new_category(self, category):
-        new_category = self.create(category=re.sub('\s+', '-', category).lower())
+        new_category = self.get_or_create(category=re.sub('\s+', '-', category).lower())
         new_category.save()
         return new_category
 
@@ -62,14 +62,8 @@ class Category(models.Model):
 
 class SubCategory(models.Model):
 
-    sub_category = models.CharField(
-        verbose_name=_("Sub-Category"),
-        max_length=250, blank=True, null=True)
-
-    category = models.ForeignKey(
-        Category, null=True, blank=True,
-        verbose_name=_("Category"), on_delete=models.CASCADE)
-
+    sub_category = models.CharField(verbose_name=_("Sub-Category"), max_length=250, blank=True, null=True)
+    category = models.ForeignKey(Category, null=True, blank=True,verbose_name=_("Category"), on_delete=models.CASCADE)
     objects = CategoryManager()
 
     class Meta:
@@ -241,13 +235,7 @@ class Progress(models.Model):
 
         else:
             #  if not present but existing, add with the points passed in
-            self.score += ",".join(
-                [
-                    str(question.category),
-                    str(score_to_add),
-                    str(possible_to_add),
-                    ""
-                ])
+            self.score += ",".join([str(question.category), str(score_to_add), str(possible_to_add), ""])
             self.save()
 
     def show_exams(self):
@@ -418,9 +406,7 @@ class Sitting(models.Model):
 
     def get_questions(self, with_answers=False):
         question_ids = self._question_ids()
-        questions = sorted(
-            self.quiz.question_set.filter(id__in=question_ids).select_subclasses(),
-            key=lambda q: question_ids.index(q.id))
+        questions = sorted(self.quiz.question_set.filter(id__in=question_ids).select_subclasses(), key=lambda q: question_ids.index(q.id))
 
         if with_answers:
             user_answers = json.loads(self.user_answers)
@@ -454,41 +440,12 @@ class Question(models.Model):
     Base class for all question types.
     Shared properties placed here.
     """
-
-    quiz = models.ManyToManyField(Quiz,
-                                  verbose_name=_("Quiz"),
-                                  blank=True)
-
-    category = models.ForeignKey(Category,
-                                 verbose_name=_("Category"),
-                                 blank=True,
-                                 null=True,
-                                 on_delete=models.CASCADE)
-
-    sub_category = models.ForeignKey(SubCategory,
-                                     verbose_name=_("Sub-Category"),
-                                     blank=True,
-                                     null=True,
-                                     on_delete=models.CASCADE)
-
-    figure = models.ImageField(upload_to='uploads/%Y/%m/%d',
-                               blank=True,
-                               null=True,
-                               verbose_name=_("Figure"))
-
-    content = models.CharField(max_length=1000,
-                               blank=False,
-                               help_text=_("Enter the question text that "
-                                           "you want displayed"),
-                               verbose_name=_('Question'))
-
-    explanation = models.TextField(max_length=2000,
-                                   blank=True,
-                                   help_text=_("Explanation to be shown "
-                                               "after the question has "
-                                               "been answered."),
-                                   verbose_name=_('Explanation'))
-
+    quiz = models.ManyToManyField(Quiz, verbose_name=_("Quiz"), blank=True)
+    category = models.ForeignKey(Category, verbose_name=_("Category"), blank=True, null=True, on_delete=models.CASCADE)
+    sub_category = models.ForeignKey(SubCategory, verbose_name=_("Sub-Category"), blank=True, null=True, on_delete=models.CASCADE)
+    figure = models.ImageField(upload_to='uploads/%Y/%m/%d', blank=True, null=True, verbose_name=_("Figure"))
+    content = models.CharField(max_length=1000, blank=False, help_text=_("Enter the question text that you want displayed"), verbose_name=_('Question'))
+    explanation = models.TextField(max_length=2000, blank=True, help_text=_("Explanation to be shown after the question has been answered."), verbose_name=_('Explanation'))
     objects = InheritanceManager()
 
     class Meta:
