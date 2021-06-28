@@ -12,27 +12,11 @@ from .forms import QuestionForm, EssayForm, QuizProfileForm
 from .models import Quiz, Category, Progress, Sitting, Question, Profile
 from essay.models import Essay_Question
 
-# def quizUserProfile():
-#     model = Profile
-
-# def Profile(request):
-    # return render(request=request, template_name="profile.html", context={"user": request.user})
-
-
 class CustomLoginView(views.LoginView):
     def form_valid(self, form):
         user = form.get_user()
         auth_login(self.request, user)
         return redirect(reverse('quiz_index'))
-        # profile_objs = Profile.objects.filter(user=user)
-        # if profile_objs.exists():
-        #     profile_obj = profile_objs.first()
-        #     profile_id = profile_obj.id
-        #     profile_url = reverse('quiz_profile', args=[profile_id])
-        #     return redirect(profile_url)
-
-        return super(CustomLoginView, self).form_valid(form)
-
 
 # TMP View for dev tempplate
 def QuizDetailExampleView(request):
@@ -126,7 +110,6 @@ class ViewQuizListByCategory(ListView):
         queryset = super(ViewQuizListByCategory, self).get_queryset()
         return queryset.filter(category=self.category, draft=False)
 
-
 class QuizUserProgressView(TemplateView):
     template_name = 'progress.html'
 
@@ -202,7 +185,6 @@ class QuizTake(FormView):
 
         if self.sitting is False:
             return render(request, self.single_complete_template_name)
-        print(self.sitting)
         return super(QuizTake, self).dispatch(request, *args, **kwargs)
 
     def get_form(self, *args, **kwargs):
@@ -240,7 +222,6 @@ class QuizTake(FormView):
         return super(QuizTake, self).get(self, self.request)
 
     def get_context_data(self, **kwargs):
-        print(dir(self.quiz))
         context = super(QuizTake, self).get_context_data(**kwargs)
         context['question'] = self.question
         context['quiz'] = self.quiz

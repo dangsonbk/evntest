@@ -88,42 +88,15 @@ class Quiz(models.Model):
     category = models.ForeignKey(Category, null=True, blank=True, verbose_name=_("Category"), on_delete=models.CASCADE)
     random_order = models.BooleanField(blank=False, default=False, verbose_name=_("Câu hỏi ngẫu nhiên"), help_text=_("Sắp xếp câu hỏi ngẫu nhiên"))
     max_questions = models.PositiveIntegerField(blank=True, null=True, verbose_name=_("Max Questions"), help_text=_("Number of questions to be answered on each attempt."))
-    answers_at_end = models.BooleanField(
-        blank=False, default=False,
-        help_text=_("Correct answer is NOT shown after question."
-                    " Answers displayed at the end."),
-        verbose_name=_("Answers at end"))
-
-    exam_paper = models.BooleanField(
-        blank=False, default=False,
-        help_text=_("If yes, the result of each"
-                    " attempt by a user will be"
-                    " stored. Necessary for marking."),
-        verbose_name=_("Exam Paper"))
-
-    single_attempt = models.BooleanField(
-        blank=False, default=False,
-        help_text=_("If yes, only one attempt by"
-                    " a user will be permitted."
-                    " Non users cannot sit this exam."),
-        verbose_name=_("Single Attempt"))
-
-    pass_mark = models.SmallIntegerField(
-        blank=True, default=0,
-        verbose_name=_("Pass Mark"),
-        help_text=_("Percentage required to pass exam."),
-        validators=[MaxValueValidator(100)])
-
+    answers_at_end = models.BooleanField(blank=False, default=False, help_text=_("Correct answer is NOT shown after question. Answers displayed at the end."), verbose_name=_("Answers at end"))
+    exam_paper = models.BooleanField(blank=False, default=False,help_text=_("If yes, the result of each attempt by a user will be stored. Necessary for marking."), verbose_name=_("Exam Paper"))
+    single_attempt = models.BooleanField(blank=False, default=False, help_text=_("If yes, only one attempt by a user will be permitted. Non users cannot sit this exam."), verbose_name=_("Single Attempt"))
+    pass_mark = models.SmallIntegerField(blank=True, default=0, verbose_name=_("Pass Mark"), help_text=_("Percentage required to pass exam."), validators=[MaxValueValidator(100)])
     success_text = models.TextField(blank=True, help_text=_("Displayed if user passes."), verbose_name=_("Success Text"))
     fail_text = models.TextField(verbose_name=_("Fail Text"), blank=True, help_text=_("Displayed if user fails."))
-    draft = models.BooleanField(
-        blank=True, default=False,
-        verbose_name=_("Draft"),
-        help_text=_("If yes, the quiz is not displayed"
-                    " in the quiz list and can only be"
-                    " taken by users who can edit"
-                    " quizzes."))
-
+    draft = models.BooleanField(blank=True, default=False, verbose_name=_("Draft"), help_text=_("If yes, the quiz is not displayed in the quiz list and can only be taken by users who can edit quizzes."))
+    start = models.DateTimeField(auto_now_add=True, verbose_name=_("Start"))
+    end = models.DateTimeField(null=True, blank=True, verbose_name=_("End"))
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         self.url = re.sub('\s+', '-', self.url).lower()
         self.url = ''.join(letter for letter in self.url if letter.isalnum() or letter == '-')
@@ -300,17 +273,8 @@ class SittingManager(models.Manager):
 
         if quiz.max_questions and quiz.max_questions < len(question_set):
             question_set = question_set[:quiz.max_questions]
-
         questions = ",".join(map(str, question_set)) + ","
-
-        new_sitting = self.create(user=user,
-                                  quiz=quiz,
-                                  question_order=questions,
-                                  question_list=questions,
-                                  incorrect_questions="",
-                                  current_score=0,
-                                  complete=False,
-                                  user_answers='{}')
+        new_sitting = self.create(user=user, quiz=quiz, question_order=questions, question_list=questions, incorrect_questions="", current_score=0, complete=False, user_answers='{}')
         return new_sitting
 
     def user_sitting(self, user, quiz):
@@ -341,25 +305,13 @@ class Sitting(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"), on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, verbose_name=_("Quiz"), on_delete=models.CASCADE)
-    question_order = models.CharField(
-        max_length=1024,
-        verbose_name=_("Question Order"),
-        validators=[validate_comma_separated_integer_list])
-
-    question_list = models.CharField(
-        max_length=1024,
-        verbose_name=_("Question List"),
-        validators=[validate_comma_separated_integer_list])
-
-    incorrect_questions = models.CharField(
-        max_length=1024,
-        blank=True,
-        verbose_name=_("Incorrect questions"),
-        validators=[validate_comma_separated_integer_list])
+    question_order = models.CharField(max_length=1024, verbose_name=_("Question Order"), validators=[validate_comma_separated_integer_list])
+    question_list = models.CharField(max_length=1024, verbose_name=_("Question List"), validators=[validate_comma_separated_integer_list])
+    incorrect_questions = models.CharField(max_length=1024, blank=True, verbose_name=_("Incorrect questions"), validators=[validate_comma_separated_integer_list])
     current_score = models.IntegerField(verbose_name=_("Current Score"))
     complete = models.BooleanField(default=False, blank=False,verbose_name=_("Complete"))
     user_answers = models.TextField(blank=True, default='{}',verbose_name=_("User Answers"))
-    start = models.DateTimeField(auto_now_add=True,verbose_name=_("Start"))
+    start = models.DateTimeField(auto_now_add=True, verbose_name=_("Start"))
     end = models.DateTimeField(null=True, blank=True, verbose_name=_("End"))
     objects = SittingManager()
 
