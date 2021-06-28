@@ -26,7 +26,7 @@
 								{{ quiz.title }}
 							</a>
 						</td>
-					  	<td>{{ quiz.start }} - {{ quiz.end }}</td>
+					  	<td>{{ quiz.start|date:"d/m/Y" }} - {{ quiz.end|date:"d/m/Y" }}</td>
 					  	<td>#</td>
 					</tr>
 				{% endfor %}

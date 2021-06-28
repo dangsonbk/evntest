@@ -11,7 +11,7 @@
         {{ quiz.title }}
     </p>
     <p class="is-pulled-right">
-        Thời gian còn lại: <b>25:00</b>
+        Thời gian còn lại: <b id="countdown">25:00</b>
     </p>
 </div>
 <div class="columns">
@@ -63,4 +63,30 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block footer_script %}
+<script type="text/javascript">
+    var upgradeTime = 7200; // TODO: change here to real number
+    var seconds = upgradeTime;
+    function timer() {
+        var days        = Math.floor(seconds/24/60/60);
+        var hoursLeft   = Math.floor((seconds) - (days*86400));
+        var hours       = Math.floor(hoursLeft/3600);
+        var minutesLeft = Math.floor((hoursLeft) - (hours*3600));
+        var minutes     = Math.floor(minutesLeft/60);
+        var remainingSeconds = seconds % 60;
+        function pad(n) {
+            return (n < 10 ? "0" + n : n);
+        }
+        document.getElementById('countdown').innerHTML = pad(hours) + ":" + pad(minutes) + ":" + pad(remainingSeconds);
+        if (seconds == 0) {
+            clearInterval(countdownTimer);
+            document.getElementById('countdown').innerHTML = "Completed";
+        } else {
+            seconds--;
+        }
+    }
+    var countdownTimer = setInterval('timer()', 1000);
+</script>
 {% endblock %}
