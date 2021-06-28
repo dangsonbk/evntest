@@ -50,7 +50,6 @@ class CategoryManager(models.Manager):
         new_category.save()
         return new_category
 
-
 class Category(models.Model):
     category = models.CharField(verbose_name=_("Category"), max_length=250, blank=True, unique=True, null=True)
     objects = CategoryManager()
@@ -83,34 +82,12 @@ class SubCategory(models.Model):
 
 class Quiz(models.Model):
 
-    title = models.CharField(
-        verbose_name=_("Title"),
-        max_length=60, blank=False)
-
-    description = models.TextField(
-        verbose_name=_("Description"),
-        blank=True, help_text=_("a description of the quiz"))
-
-    url = models.SlugField(
-        max_length=60, blank=False,
-        help_text=_("a user friendly url"),
-        verbose_name=_("user friendly url"))
-
-    category = models.ForeignKey(
-        Category, null=True, blank=True,
-        verbose_name=_("Category"), on_delete=models.CASCADE)
-
-    random_order = models.BooleanField(
-        blank=False, default=False,
-        verbose_name=_("Random Order"),
-        help_text=_("Display the questions in "
-                    "a random order or as they "
-                    "are set?"))
-
-    max_questions = models.PositiveIntegerField(
-        blank=True, null=True, verbose_name=_("Max Questions"),
-        help_text=_("Number of questions to be answered on each attempt."))
-
+    title = models.CharField(verbose_name=_("Title"), max_length=60, blank=False)
+    description = models.TextField(verbose_name=_("Description"), blank=True, help_text=_("a description of the quiz"))
+    url = models.SlugField(max_length=60, blank=False, help_text=_("a user friendly url"), verbose_name=_("user friendly url"))
+    category = models.ForeignKey(Category, null=True, blank=True, verbose_name=_("Category"), on_delete=models.CASCADE)
+    random_order = models.BooleanField(blank=False, default=False, verbose_name=_("Câu hỏi ngẫu nhiên"), help_text=_("Sắp xếp câu hỏi ngẫu nhiên"))
+    max_questions = models.PositiveIntegerField(blank=True, null=True, verbose_name=_("Max Questions"), help_text=_("Number of questions to be answered on each attempt."))
     answers_at_end = models.BooleanField(
         blank=False, default=False,
         help_text=_("Correct answer is NOT shown after question."
@@ -137,14 +114,8 @@ class Quiz(models.Model):
         help_text=_("Percentage required to pass exam."),
         validators=[MaxValueValidator(100)])
 
-    success_text = models.TextField(
-        blank=True, help_text=_("Displayed if user passes."),
-        verbose_name=_("Success Text"))
-
-    fail_text = models.TextField(
-        verbose_name=_("Fail Text"),
-        blank=True, help_text=_("Displayed if user fails."))
-
+    success_text = models.TextField(blank=True, help_text=_("Displayed if user passes."), verbose_name=_("Success Text"))
+    fail_text = models.TextField(verbose_name=_("Fail Text"), blank=True, help_text=_("Displayed if user fails."))
     draft = models.BooleanField(
         blank=True, default=False,
         verbose_name=_("Draft"),
@@ -155,9 +126,7 @@ class Quiz(models.Model):
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         self.url = re.sub('\s+', '-', self.url).lower()
-
-        self.url = ''.join(letter for letter in self.url if
-                           letter.isalnum() or letter == '-')
+        self.url = ''.join(letter for letter in self.url if letter.isalnum() or letter == '-')
 
         if self.single_attempt is True:
             self.exam_paper = True
@@ -168,8 +137,8 @@ class Quiz(models.Model):
         super(Quiz, self).save(force_insert, force_update, *args, **kwargs)
 
     class Meta:
-        verbose_name = _("Quiz")
-        verbose_name_plural = _("Quizzes")
+        verbose_name = _("Đề thi")
+        verbose_name_plural = _("Đề thi")
 
     def __str__(self):
         return self.title
@@ -209,11 +178,7 @@ class Progress(models.Model):
         category, score, possible, category, score, possible, ...
     """
     user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name=_("User"), on_delete=models.CASCADE)
-
-    score = models.CharField(max_length=1024,
-                             verbose_name=_("Score"),
-                             validators=[validate_comma_separated_integer_list])
-
+    score = models.CharField(max_length=1024, verbose_name=_("Score"), validators=[validate_comma_separated_integer_list])
     objects = ProgressManager()
 
     class Meta:
@@ -324,18 +289,14 @@ class SittingManager(models.Manager):
 
     def new_sitting(self, user, quiz):
         if quiz.random_order is True:
-            question_set = quiz.question_set.all() \
-                                            .select_subclasses() \
-                                            .order_by('?')
+            question_set = quiz.question_set.all().select_subclasses().order_by('?')
         else:
-            question_set = quiz.question_set.all() \
-                                            .select_subclasses()
+            question_set = quiz.question_set.all().select_subclasses()
 
         question_set = [item.id for item in question_set]
 
         if len(question_set) == 0:
-            raise ImproperlyConfigured('Question set of the quiz is empty. '
-                                       'Please configure questions properly')
+            raise ImproperlyConfigured('Question set of the quiz is empty. Please configure questions properly')
 
         if quiz.max_questions and quiz.max_questions < len(question_set):
             question_set = question_set[:quiz.max_questions]
@@ -353,10 +314,7 @@ class SittingManager(models.Manager):
         return new_sitting
 
     def user_sitting(self, user, quiz):
-        if quiz.single_attempt is True and self.filter(user=user,
-                                                       quiz=quiz,
-                                                       complete=True)\
-                                               .exists():
+        if quiz.single_attempt is True and self.filter(user=user, quiz=quiz, complete=True).exists():
             return False
 
         try:
@@ -367,30 +325,22 @@ class SittingManager(models.Manager):
             sitting = self.filter(user=user, quiz=quiz, complete=False)[0]
         return sitting
 
-
 class Sitting(models.Model):
     """
     Used to store the progress of logged in users sitting a quiz.
     Replaces the session system used by anon users.
-
     Question_order is a list of integer pks of all the questions in the
     quiz, in order.
-
     Question_list is a list of integers which represent id's of
     the unanswered questions in csv format.
-
     Incorrect_questions is a list in the same format.
-
     Sitting deleted when quiz finished unless quiz.exam_paper is true.
-
     User_answers is a json object in which the question PK is stored
     with the answer the user gave.
     """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"), on_delete=models.CASCADE)
-
     quiz = models.ForeignKey(Quiz, verbose_name=_("Quiz"), on_delete=models.CASCADE)
-
     question_order = models.CharField(
         max_length=1024,
         verbose_name=_("Question Order"),
@@ -406,20 +356,11 @@ class Sitting(models.Model):
         blank=True,
         verbose_name=_("Incorrect questions"),
         validators=[validate_comma_separated_integer_list])
-
     current_score = models.IntegerField(verbose_name=_("Current Score"))
-
-    complete = models.BooleanField(default=False, blank=False,
-                                   verbose_name=_("Complete"))
-
-    user_answers = models.TextField(blank=True, default='{}',
-                                    verbose_name=_("User Answers"))
-
-    start = models.DateTimeField(auto_now_add=True,
-                                 verbose_name=_("Start"))
-
+    complete = models.BooleanField(default=False, blank=False,verbose_name=_("Complete"))
+    user_answers = models.TextField(blank=True, default='{}',verbose_name=_("User Answers"))
+    start = models.DateTimeField(auto_now_add=True,verbose_name=_("Start"))
     end = models.DateTimeField(null=True, blank=True, verbose_name=_("End"))
-
     objects = SittingManager()
 
     class Meta:
@@ -526,8 +467,7 @@ class Sitting(models.Model):
     def get_questions(self, with_answers=False):
         question_ids = self._question_ids()
         questions = sorted(
-            self.quiz.question_set.filter(id__in=question_ids)
-                                  .select_subclasses(),
+            self.quiz.question_set.filter(id__in=question_ids).select_subclasses(),
             key=lambda q: question_ids.index(q.id))
 
         if with_answers:

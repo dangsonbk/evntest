@@ -172,8 +172,7 @@ class QuizMarkingDetail(QuizMarkerMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(QuizMarkingDetail, self).get_context_data(**kwargs)
-        context['questions'] =\
-            context['sitting'].get_questions(with_answers=True)
+        context['questions'] = context['sitting'].get_questions(with_answers=True)
         return context
 
 
@@ -203,7 +202,7 @@ class QuizTake(FormView):
 
         if self.sitting is False:
             return render(request, self.single_complete_template_name)
-
+        print(self.sitting)
         return super(QuizTake, self).dispatch(request, *args, **kwargs)
 
     def get_form(self, *args, **kwargs):
@@ -241,6 +240,7 @@ class QuizTake(FormView):
         return super(QuizTake, self).get(self, self.request)
 
     def get_context_data(self, **kwargs):
+        print(dir(self.quiz))
         context = super(QuizTake, self).get_context_data(**kwargs)
         context['question'] = self.question
         context['quiz'] = self.quiz
