@@ -1,4 +1,6 @@
 import random
+import time
+import datetime
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -227,6 +229,21 @@ class QuizTake(FormView):
         context = super(QuizTake, self).get_context_data(**kwargs)
         context['question'] = self.question
         context['quiz'] = self.quiz
+
+        sid = f'tf-{self.quiz.id}'
+        current_time = int(time.time())
+        if sid not in self.request.session:
+            expired = current_time + (self.quiz.duration * 60)
+            self.request.session[sid] = expired
+        else:
+            expired = self.request.session[sid]
+
+        time_left = expired - current_time
+        if time_left < 1:
+            time_left = 0
+        context['time_left_s'] = time_left
+        context['time_left_f'] = datetime.timedelta(seconds=time_left)
+
         if hasattr(self, 'previous'):
             context['previous'] = self.previous
         if hasattr(self, 'progress'):

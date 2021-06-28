@@ -11,7 +11,7 @@
         {{ quiz.title }}
     </p>
     <p class="is-pulled-right">
-        Thời gian còn lại: <b id="countdown">{{ quiz.duration|convert_duration }}</b>
+        Thời gian còn lại: <b id="countdown">{{ time_left_f }}</b>
     </p>
 </div>
 <div class="columns">
@@ -70,7 +70,7 @@
 
 {% block footer_script %}
 <script type="text/javascript">
-    var upgradeTime = {{quiz.duration}} * 60;
+    var upgradeTime = {{time_left_s}};
     upgradeTime = upgradeTime - 1;
     var seconds = upgradeTime;
     function timer() {
