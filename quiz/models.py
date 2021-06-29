@@ -143,8 +143,7 @@ class Quiz(models.Model):
 class ProgressManager(models.Manager):
 
     def new_progress(self, user):
-        new_progress = self.create(user=user,
-                                   score="")
+        new_progress = self.create(user=user, score="")
         new_progress.save()
         return new_progress
 
@@ -154,8 +153,7 @@ class Progress(models.Model):
     Progress is used to track an individual signed in users score on different
     quiz's and categories
 
-    Data stored in csv using the format:
-        category, score, possible, category, score, possible, ...
+    Data stored in csv using the format: category, score, possible, category, score, possible, ...
     """
     user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name=_("Thí sinh"), on_delete=models.CASCADE)
     score = models.CharField(max_length=1024, verbose_name=_("Điểm"), validators=[validate_comma_separated_integer_list])
@@ -194,8 +192,7 @@ class Progress(models.Model):
                 possible = int(match.group(2))
 
                 try:
-                    percent = int(round((float(score) / float(possible))
-                                        * 100))
+                    percent = int(round((float(score) / float(possible)) * 100))
                 except:
                     percent = 0
 
@@ -218,33 +215,18 @@ class Progress(models.Model):
 
         Does not return anything.
         """
-        category_test = Category.objects.filter(category=question.category)\
-                                        .exists()
+        category_test = Category.objects.filter(category=question.category).exists()
 
-        if any([item is False for item in [category_test,
-                                           score_to_add,
-                                           possible_to_add,
-                                           isinstance(score_to_add, int),
-                                           isinstance(possible_to_add, int)]]):
+        if any([item is False for item in [category_test, score_to_add, possible_to_add, isinstance(score_to_add, int), isinstance(possible_to_add, int)]]):
             return _("error"), _("category does not exist or invalid score")
 
-        to_find = re.escape(str(question.category)) +\
-            r",(?P<score>\d+),(?P<possible>\d+),"
-
+        to_find = re.escape(str(question.category)) + r",(?P<score>\d+),(?P<possible>\d+),"
         match = re.search(to_find, self.score, re.IGNORECASE)
 
         if match:
             updated_score = int(match.group('score')) + abs(score_to_add)
-            updated_possible = int(match.group('possible')) +\
-                abs(possible_to_add)
-
-            new_score = ",".join(
-                [
-                    str(question.category),
-                    str(updated_score),
-                    str(updated_possible), ""
-                ])
-
+            updated_possible = int(match.group('possible')) + abs(possible_to_add)
+            new_score = ",".join([str(question.category), str(updated_score), str(updated_possible), ""])
             # swap old score for the new one
             self.score = self.score.replace(match.group(), new_score)
             self.save()
@@ -282,7 +264,6 @@ class SittingManager(models.Manager):
     def user_sitting(self, user, quiz):
         if quiz.single_attempt is True and self.filter(user=user, quiz=quiz, complete=True).exists():
             return False
-
         try:
             sitting = self.get(user=user, quiz=quiz, complete=False)
         except Sitting.DoesNotExist:
@@ -431,9 +412,7 @@ class Sitting(models.Model):
 
     @property
     def questions_with_user_answers(self):
-        return {
-            q: q.user_answer for q in self.get_questions(with_answers=True)
-        }
+        return {q: q.user_answer for q in self.get_questions(with_answers=True)}
 
     @property
     def get_max_score(self):
@@ -441,8 +420,7 @@ class Sitting(models.Model):
 
     def progress(self):
         """
-        Returns the number of questions answered so far and the total number of
-        questions.
+        Returns the number of questions answered so far and the total number of questions.
         """
         answered = len(json.loads(self.user_answers))
         total = self.get_max_score
