@@ -1,4 +1,5 @@
 {% extends "base_v2.html" %}
+{% load static %}
 {% load i18n%}
 {% load quiz_tags %}
 {% load utils_tag %}
@@ -23,6 +24,9 @@
                 <div>
                     <p><b>Câu hỏi:</b></p>
                     <p class="ml-4 mt-4">{{ question.content }}</p>
+                    {% if question.figure %}
+                        <img class="ml-4" src="{{ question.figure.url }}">
+                    {% endif %}
                     <p class="mt-4"><b>Trả lời:</b></p>
                     <ul class="list-group ml-4 mt-4">
                         {% for answer in form.answers %}
@@ -44,10 +48,10 @@
     <div class="column is-one-quarter pt-0 questions">
         <div class="card">
             <div class="card-content" style="min-height: 70vh;">
-                <button class="button is-info">
-                    <span>{{ question.id }} / {{ quiz.question_set.all|length }}</span>
-                </button>
-                <!-- {% for ques in quiz.question_set.all %}
+<!--                <button class="button is-info">-->
+<!--                    <span>{{ question.id }} / {{ quiz.question_set.all|length }}</span>-->
+<!--                </button>-->
+                {% for ques in quiz.question_set.all %}
                     {% if forloop.counter == 1 %}
                         <div class="buttons mb-1">
                     {% endif %}
@@ -61,7 +65,7 @@
                     {% if forloop.counter == quiz.question_set.all|length %}
                         </div>
                     {% endif %}
-                {% endfor %} -->
+                {% endfor %}
             </div>
         </div>
     </div>
