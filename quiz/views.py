@@ -1,6 +1,7 @@
 import random
 import time
 import datetime
+import json
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -212,6 +213,17 @@ class QuizTake(FormView):
         return dict(kwargs, question=self.question)
 
     def form_valid(self, form):
+        # Lưu vào session câu hỏi đã trả lời
+        sid = f'uid-{self.request.user.id}-quiz-{self.quiz.id}-answered'
+        print(f"current question: {self.question.id}")
+        if sid not in self.request.session:
+            answered = [self.question.id]
+        else:
+            answered = json.loads(self.request.session[sid])
+            answered.append(self.question.id)
+        print(f">submit sid: {sid} and value: {answered}")
+        self.request.session[sid] = json.dumps(answered)
+
         if self.logged_in_user:
             self.form_valid_user(form)
             if self.sitting.get_first_question() is False:
@@ -242,7 +254,18 @@ class QuizTake(FormView):
         if time_left < 1:
             time_left = 0
         context['time_left_s'] = time_left
-        context['time_left_f'] = datetime.timedelta(seconds=time_left)
+        if time_left < 1:
+            context['time_left_f'] = 'Hết giờ'
+        else:
+            context['time_left_f'] = datetime.timedelta(seconds=time_left)
+
+        sid = f'uid-{self.request.user.id}-quiz-{self.quiz.id}-answered'
+        if sid not in self.request.session:
+            answered = []
+        else:
+            answered = json.loads(self.request.session[sid])
+        print(f">context sid: {sid} and value: {answered}")
+        context['answered'] = answered
 
         if hasattr(self, 'previous'):
             context['previous'] = self.previous

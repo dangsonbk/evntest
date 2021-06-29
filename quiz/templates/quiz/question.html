@@ -55,7 +55,14 @@
                     {% if forloop.counter == 1 %}
                         <div class="buttons mb-1">
                     {% endif %}
-                        <button class="button {% if ques.id == question.id %}is-light{% else %}is-info{% endif %}">
+                            {% if ques.id in answered %}
+                                <button class="button is-info">
+                            {% elif ques.id == question.id %}
+                                <button class="button is-warning">
+                            {% else %}
+                                <button class="button is-light">
+                            {% endif %}
+
                             <span>{{ forloop.counter }}</span>
                         </button>
                     {% if forloop.counter|divisibleby:4 %}
@@ -78,6 +85,11 @@
     upgradeTime = upgradeTime - 1;
     var seconds = upgradeTime;
     function timer() {
+        if (seconds < 0) {
+            document.getElementById('countdown').innerHTML = "Hết giờ";
+            return;
+        }
+
         var days        = Math.floor(seconds/24/60/60);
         var hoursLeft   = Math.floor((seconds) - (days*86400));
         var hours       = Math.floor(hoursLeft/3600);
