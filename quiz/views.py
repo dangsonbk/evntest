@@ -166,7 +166,7 @@ class QuizTake(FormView):
     form_class = QuestionForm
     # template_name = 'question.html'
     template_name = 'quiz/question.html'
-    result_template_name = 'result.html'
+    result_template_name = 'quiz/result.html'
     single_complete_template_name = 'single_complete.html'
     login_request_template_name = 'login.html'
 
@@ -215,13 +215,11 @@ class QuizTake(FormView):
     def form_valid(self, form):
         # Lưu vào session câu hỏi đã trả lời
         sid = f'uid-{self.request.user.id}-quiz-{self.quiz.id}-answered'
-        print(f"current question: {self.question.id}")
         if sid not in self.request.session:
             answered = [self.question.id]
         else:
             answered = json.loads(self.request.session[sid])
             answered.append(self.question.id)
-        print(f">submit sid: {sid} and value: {answered}")
         self.request.session[sid] = json.dumps(answered)
 
         if self.logged_in_user:
@@ -264,7 +262,6 @@ class QuizTake(FormView):
             answered = []
         else:
             answered = json.loads(self.request.session[sid])
-        print(f">context sid: {sid} and value: {answered}")
         context['answered'] = answered
 
         if hasattr(self, 'previous'):
@@ -417,6 +414,16 @@ class QuizTake(FormView):
             results['previous'] = self.previous
 
         del self.request.session[self.quiz.anon_q_data()]
+
+        # Delete countdown time
+        sid = f'tf-{self.quiz.id}'
+        if sid in self.request.session.keys():
+            del self.request.session[sid]
+
+        # Delete answered
+        sid = f'uid-{self.request.user.id}-quiz-{self.quiz.id}-answered'
+        if sid in self.request.session.keys():
+            del self.request.session[sid]
 
         return render(self.request, 'result.html', results)
 

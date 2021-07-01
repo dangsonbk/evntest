@@ -1,0 +1,72 @@
+{% extends "base_v2.html" %}
+{% load i18n %}
+
+{% load quiz_tags %}
+
+{% block title %} {{ quiz.title}} {% endblock %}
+
+{% block content %}
+<p class="title is-4 is-spaced">
+    {{ quiz.title }}
+</p>
+<div class="card">
+	<div class="card-content" style="min-height: 250px; margin-bottom: 20px;">
+		<div>
+            <p><b>Bạn đã hoàn thành kỳ thi với tổng thời gian là </b> {{ completed_at }}</p>
+            <p><b>Số câu trả lời đúng:</b> <span class="has-text-link">{{ score }}</span></p>
+            <p><b>Số câu trả lời sai:</b> <span class="has-text-danger">{{ incorrect_questions|length }}</span></p>
+            <p><b>Kết quả cuối cùng:</b> <span class="has-text-link">Hoàn thành</span></p>
+        </div>
+        <div class="has-text-centered mt-4">
+            <a href="{% url 'quiz_index' %}" class="button is-info">
+                <span>Thoát</span>
+                <span class="icon is-small">
+                    <i class="fas fa-arrow-alt-circle-right"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card is-fullwidth">
+    <header class="card-header">
+        <p class="card-header-title">Hiển thị đáp án</p>
+        <a class="card-header-icon card-toggle">
+            <i class="fa fa-angle-down"></i>
+        </a>
+    </header>
+    <div class="card-content is-hidden">
+        <div class="content" style="max-height: 450px; overflow-x: scroll;">
+            {% for question in questions %}
+                <p class="lead">
+                    {{ question.content }}
+                </p>
+
+                {% correct_answer_for_all question %}
+
+                {% if question.user_answer %}
+                    <p>{% trans "Your answer" %}: {{ question|answer_choice_to_string:question.user_answer }}</p>
+                {% endif %}
+
+                <p><strong>{% trans "Explanation" %}:</strong></p>
+                <div class="well " style="background-color: #fcf8e3;">
+                    <p>{{ question.explanation|safe }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer_script %}
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        let cardToggles = document.getElementsByClassName('card-toggle');
+        for (let i = 0; i < cardToggles.length; i++) {
+            cardToggles[i].addEventListener('click', e => {
+                e.currentTarget.parentElement.parentElement.childNodes[3].classList.toggle('is-hidden');
+            });
+        }
+    });
+</script>
+{% endblock %}
