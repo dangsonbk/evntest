@@ -33,7 +33,7 @@ class QuizProfileView(UpdateView):
     model = Profile
     template_name = 'quiz/user_profile.html'
     form_class = QuizProfileForm
-    success_url = '/quiz-welcome'  # TODO: change here to redirect quiz list
+    success_url = '/'
 
     def form_valid(self, form):
         redirect_url = super(QuizProfileView, self).form_valid(form)

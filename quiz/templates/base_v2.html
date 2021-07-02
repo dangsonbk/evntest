@@ -55,7 +55,9 @@
                             </span>
                             {{ user_info.user.first_name }}
                             <span class="icon is-pulled-right">
-                                <i class="fas fa-cog"></i>
+                                <a href="{% url 'quiz_profile' pk=user_info.id %}">
+                                    <i class="fas fa-cog"></i>
+                                </a>
                             </span>
                         </p>
                         <p><b>Nhân viên:</b> {{ user_info.full_name }}</p>
