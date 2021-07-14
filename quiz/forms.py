@@ -51,7 +51,7 @@ class QuizProfileForm(forms.ModelForm):
         super(QuizProfileForm, self).__init__(*args, **kwargs)
         self.fields['identity_code'].initial = self.instance.id
         self.fields['full_name'].initial = self.instance.user.first_name
-
+        self.fields['department'].required = True
         self.fields['full_name'].required = True
         self.fields['id_card'].required = True
     
@@ -85,7 +85,7 @@ class QuizProfileForm(forms.ModelForm):
 
         widgets = {
             'gender': forms.Select(attrs={'class': 'input is-normal'}),
-            'department': forms.TextInput(attrs={'class': 'input is-normal'}),
+            'department': forms.Select(attrs={'class': 'input is-normal'}),
             'title': forms.TextInput(attrs={'class': 'input is-normal'}),
             'id_card': forms.TextInput(attrs={'class': 'input is-normal'}),
             'branch': forms.Select(attrs={'class': 'input is-normal'}, choices=BRANCH_CHOICES),

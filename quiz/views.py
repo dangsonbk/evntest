@@ -67,7 +67,16 @@ class QuizListView(ListView):
 
     def get_queryset(self):
         queryset = super(QuizListView, self).get_queryset()
-        return queryset.filter(draft=False)
+        queryset = queryset.filter(draft=False)
+
+        profile = Profile.objects.get(user=self.request.user)
+        department = profile.department
+        if department.categories:
+            categories = department.categories
+            queryset = queryset.filter(
+                category__in=categories.values('id')
+            )
+        return queryset
 
 
 class QuizDetailView(DetailView):
@@ -82,6 +91,16 @@ class QuizDetailView(DetailView):
             raise PermissionDenied
 
         context = self.get_context_data(object=self.object)
+        if not context['quiz'] or not context['quiz'].category:
+            return redirect(reverse('quiz_index'))
+
+        profile = Profile.objects.get(user=self.request.user)
+        department = profile.department
+        if department.categories:
+            categories = [cate['id'] for cate in department.categories.values('id')]
+            if context['quiz'].category.id not in categories:
+                return redirect(reverse('quiz_index'))
+
         return self.render_to_response(context)
 
 
@@ -239,6 +258,16 @@ class QuizTake(FormView):
         context = super(QuizTake, self).get_context_data(**kwargs)
         context['question'] = self.question
         context['quiz'] = self.quiz
+        
+        if not context['quiz'] or not context['quiz'].category:
+            return redirect(reverse('quiz_index'))
+
+        profile = Profile.objects.get(user=self.request.user)
+        department = profile.department
+        if department.categories:
+            categories = [cate['id'] for cate in department.categories.values('id')]
+            if context['quiz'].category.id not in categories:
+                return redirect(reverse('quiz_index'))
 
         sid = f'tf-{self.quiz.id}'
         current_time = int(time.time())
