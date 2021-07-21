@@ -37,11 +37,11 @@ class EssayForm(forms.Form):
 
 class QuizProfileForm(forms.ModelForm):
     full_name = forms.CharField(
-        label=_('Full Name'), max_length=191, required=True,
+        label=_('Họ tên'), max_length=191, required=True,
         widget=forms.TextInput(attrs={'class': 'input is-normal'})
     )
     identity_code = forms.CharField(
-        label=_('Identity Code'), max_length=191, required=False,
+        label=_('Mã dự thi'), max_length=191, required=False,
         widget=forms.TextInput(attrs={
             'class': 'input is-normal', 'readonly': 'readonly', 'disabled': 'disabled'
         })
@@ -58,13 +58,13 @@ class QuizProfileForm(forms.ModelForm):
     def clean_full_name(self):
         data = self.cleaned_data['full_name']
         if len(data) < 5:
-            raise ValidationError(_('Full name too short!'))
+            raise ValidationError(_('Tên quá ngắn!'))
         return data
 
     def clean_id_card(self):
         data = self.cleaned_data['id_card']
         if len(data) < 9:
-            raise ValidationError(_('ID Card too short!'))
+            raise ValidationError(_('Không hợp lệ'))
         return data
 
     class Meta:
@@ -75,12 +75,12 @@ class QuizProfileForm(forms.ModelForm):
         )
 
         labels = {
-            'gender': _('Gender'),
-            'department': _('Department'),
-            'title': _('Position'),
-            'dob': _('DoB'),
-            'id_card': _('Identity Card'),
-            'branch': _('Branch')
+            'gender': _('Giới tính'),
+            'department': _('Phòng ban'),
+            'title': _('Chức danh'),
+            'dob': _('Ngày sinh'),
+            'id_card': _('Mã nhân viên'),
+            'branch': _('Chi nhánh')
         }
 
         widgets = {
