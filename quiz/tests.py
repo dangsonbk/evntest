@@ -14,7 +14,7 @@ from django.template import Template, Context
 from django.test import TestCase
 from django.utils.six import StringIO
 
-from .models import Category, Quiz, Progress, Sitting, SubCategory
+from .models import Grade, Quiz, Progress, Sitting
 from .views import (anon_session_score, QuizListView, CategoriesListView,
                     QuizDetailView)
 
@@ -23,23 +23,20 @@ from true_false.models import TF_Question
 from essay.models import Essay_Question
 
 
-class TestCategory(TestCase):
+class TestGrade(TestCase):
     def setUp(self):
-        self.c1 = Category.objects.new_category(category='squishy   berries')
-
-        self.sub1 = SubCategory.objects.create(sub_category='Red',
-                                               category=self.c1)
+        self.c1 = Grade.objects.new_grade(grade='squishy   berries')
 
     def test_categories(self):
-        self.assertEqual(self.c1.category, 'squishy-berries')
+        self.assertEqual(self.c1.grade, 'squishy-berries')
 
     def test_sub_categories(self):
-        self.assertEqual(self.sub1.category, self.c1)
+        self.assertEqual(self.sub1.grade, self.c1)
 
 
 class TestQuiz(TestCase):
     def setUp(self):
-        self.c1 = Category.objects.new_category(category='elderberries')
+        self.c1 = Grade.objects.new_grade(grade='elderberries')
 
         self.quiz1 = Quiz.objects.create(id=1,
                                          title='test quiz 1',
@@ -73,10 +70,10 @@ class TestQuiz(TestCase):
                                  title='test quiz 5',
                                  description='d5',
                                  url='tq5',
-                                 category=self.c1,
+                                 grade=self.c1,
                                  exam_paper=True)
 
-        self.assertEqual(q5.category.category, self.c1.category)
+        self.assertEqual(q5.grade.grade, self.c1.grade)
         self.assertEqual(q5.random_order, False)
         self.assertEqual(q5.answers_at_end, False)
         self.assertEqual(q5.exam_paper, True)
@@ -110,7 +107,7 @@ class TestQuiz(TestCase):
 
 class TestProgress(TestCase):
     def setUp(self):
-        self.c1 = Category.objects.new_category(category='elderberries')
+        self.c1 = Grade.objects.new_grade(grade='elderberries')
 
         self.quiz1 = Quiz.objects.create(id=1,
                                          title='test quiz 1',
@@ -118,7 +115,7 @@ class TestProgress(TestCase):
                                          url='tq1')
 
         self.question1 = MCQuestion.objects.create(content='squawk',
-                                                   category=self.c1)
+                                                   grade=self.c1)
 
         self.user = User.objects.create_user(username='jacob',
                                              email='jacob@jacob.com',
@@ -129,33 +126,26 @@ class TestProgress(TestCase):
     def test_list_all_empty(self):
         self.assertEqual(self.p1.score, '')
 
-        category_dict = self.p1.list_all_cat_scores
+        grade_dict = self.p1.list_all_cat_scores
 
-        self.assertIn(str(list(category_dict.keys())[0]), self.p1.score)
+        self.assertIn(str(list(grade_dict.keys())[0]), self.p1.score)
 
-        self.assertIn(self.c1.category, self.p1.score)
+        self.assertIn(self.c1.grade, self.p1.score)
 
-        Category.objects.new_category(category='cheese')
+        Grade.objects.new_grade(grade='cheese')
 
         self.p1.list_all_cat_scores
 
         self.assertIn('cheese', self.p1.score)
-
-    def test_subcategory_all_empty(self):
-        SubCategory.objects.create(sub_category='pickles',
-                                   category=self.c1)
-        # self.p1.list_all_cat_scores
-        # self.assertIn('pickles', self.p1.score)
-        # TODO: test after implementing subcategory scoring on progress page
 
     def test_update_score(self):
         self.p1.list_all_cat_scores
         self.p1.update_score(self.question1, 1, 2)
         self.assertIn('elderberries', self.p1.list_all_cat_scores)
 
-        cheese = Category.objects.new_category(category='cheese')
+        cheese = Grade.objects.new_grade(grade='cheese')
         question2 = MCQuestion.objects.create(content='squeek',
-                                              category=cheese)
+                                              grade=cheese)
         self.p1.update_score(question2, 3, 4)
 
         self.assertIn('cheese', self.p1.list_all_cat_scores)
@@ -317,15 +307,15 @@ class TestNonQuestionViews(TestCase):
     urls = 'quiz.urls'
 
     def setUp(self):
-        self.c1 = Category.objects.new_category(category='elderberries')
-        self.c2 = Category.objects.new_category(category='straw.berries')
-        self.c3 = Category.objects.new_category(category='black berries')
+        self.c1 = Grade.objects.new_grade(grade='elderberries')
+        self.c2 = Grade.objects.new_grade(grade='straw.berries')
+        self.c3 = Grade.objects.new_grade(grade='black berries')
 
         self.quiz1 = Quiz.objects.create(id=1,
                                          title='test quiz 1',
                                          description='d1',
                                          url='tq1',
-                                         category=self.c1,
+                                         grade=self.c1,
                                          single_attempt=True)
         self.quiz2 = Quiz.objects.create(id=2,
                                          title='test quiz 2',
@@ -358,7 +348,7 @@ class TestNonQuestionViews(TestCase):
         self.assertEqual(view.get_queryset().count(), 3)
 
         # integration test
-        response = self.client.get('/category/')
+        response = self.client.get('/grade/')
 
         self.assertContains(response, 'elderberries')
         self.assertContains(response, 'straw.berries')
@@ -370,7 +360,7 @@ class TestNonQuestionViews(TestCase):
         self.assertEqual(view.get_queryset().count(), 3)
 
         # integration test
-        response = self.client.get('/category/elderberries/')
+        response = self.client.get('/grade/elderberries/')
 
         self.assertContains(response, 'test quiz 1')
         self.assertNotContains(response, 'test quiz 2')
@@ -384,7 +374,7 @@ class TestNonQuestionViews(TestCase):
                                         email='jacob@jacob.com',
                                         password='top_secret')
         question1 = MCQuestion.objects.create(content='squawk',
-                                              category=self.c1)
+                                              grade=self.c1)
 
         self.client.login(username='jacob', password='top_secret')
         p1 = Progress.objects.new_progress(user)
@@ -401,7 +391,7 @@ class TestNonQuestionViews(TestCase):
         # unit
         view = QuizDetailView()
         view.kwargs = dict(slug='tq1')
-        self.assertEqual(view.get_object().category, self.c1)
+        self.assertEqual(view.get_object().grade, self.c1)
 
         # integration test
         response = self.client.get('/tq1/')
@@ -435,7 +425,7 @@ class TestQuestionMarking(TestCase):
     urls = 'quiz.urls'
 
     def setUp(self):
-        self.c1 = Category.objects.new_category(category='elderberries')
+        self.c1 = Grade.objects.new_grade(grade='elderberries')
         self.student = User.objects.create_user(username='luke',
                                                 email='luke@rebels.com',
                                                 password='top_secret')
@@ -449,13 +439,13 @@ class TestQuestionMarking(TestCase):
                                          title='test quiz 1',
                                          description='d1',
                                          url='tq1',
-                                         category=self.c1,
+                                         grade=self.c1,
                                          single_attempt=True)
         self.quiz2 = Quiz.objects.create(id=2,
                                          title='test quiz 2',
                                          description='d2',
                                          url='tq2',
-                                         category=self.c1,
+                                         grade=self.c1,
                                          single_attempt=True)
 
         self.question1 = MCQuestion.objects.create(id=1, content='squawk')
@@ -561,13 +551,13 @@ class TestQuestionViewsAnon(TestCase):
     urls = 'quiz.urls'
 
     def setUp(self):
-        self.c1 = Category.objects.new_category(category='elderberries')
+        self.c1 = Grade.objects.new_grade(grade='elderberries')
 
         self.quiz1 = Quiz.objects.create(id=1,
                                          title='test quiz 1',
                                          description='d1',
                                          url='tq1',
-                                         category=self.c1)
+                                         grade=self.c1)
 
         self.question1 = MCQuestion.objects.create(id=1,
                                                    content='squawk')
@@ -708,13 +698,13 @@ class TestQuestionViewsUser(TestCase):
     urls = 'quiz.urls'
 
     def setUp(self):
-        self.c1 = Category.objects.new_category(category='elderberries')
+        self.c1 = Grade.objects.new_grade(grade='elderberries')
 
         self.quiz1 = Quiz.objects.create(id=1,
                                          title='test quiz 1',
                                          description='d1',
                                          url='tq1',
-                                         category=self.c1,
+                                         grade=self.c1,
                                          pass_mark=50,
                                          success_text="You have passed")
 
@@ -722,7 +712,7 @@ class TestQuestionViewsUser(TestCase):
                                          title='test quiz 2',
                                          description='d2',
                                          url='tq2',
-                                         category=self.c1,
+                                         grade=self.c1,
                                          answers_at_end=True,
                                          exam_paper=True)
 
@@ -815,7 +805,7 @@ class TestQuestionViewsUser(TestCase):
         self.assertEqual(sitting.incorrect_questions, '1,')
         self.assertEqual(sitting.complete, False)
         self.assertEqual(progress_count, 1)
-        self.assertIn(self.c1.category, progress)
+        self.assertIn(self.c1.grade, progress)
         self.assertEqual(sitting.question_list, '2,')
         self.assertIn('123', response.context['previous']['previous_answer'])
         self.assertEqual(response.context['question'].content,
@@ -901,7 +891,7 @@ class TestQuestionViewsUser(TestCase):
                                     title='test quiz 3',
                                     description='d3',
                                     url='tq3',
-                                    category=self.c1,
+                                    grade=self.c1,
                                     answers_at_end=True,
                                     exam_paper=True)
         essay = Essay_Question.objects.create(id=4, content='tell all')

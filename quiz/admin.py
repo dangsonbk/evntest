@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from .models import Quiz, Category, SubCategory, Progress, Question, Profile, ProfileUpload, Department, Branch
+from .models import Quiz, Grade, Progress, Question, Profile, ProfileUpload, Department, Branch
 from multichoice.models import MCQuestion, Answer, Upload
 from true_false.models import TF_Question
 from essay.models import Essay_Question
@@ -45,22 +45,17 @@ class ProfileAdmin(admin.ModelAdmin):
     pass
 class QuizAdmin(admin.ModelAdmin):
     form = QuizAdminForm
-    list_display = ('title', 'category', )
-    list_filter = ('category',)
-    search_fields = ('description', 'category', )
+    list_display = ('title', 'grade', )
+    list_filter = ('grade',)
+    search_fields = ('description', 'grade', )
 
-class CategoryAdmin(admin.ModelAdmin):
-    search_fields = ('category', )
-
-class SubCategoryAdmin(admin.ModelAdmin):
-    search_fields = ('sub_category', )
-    list_display = ('sub_category', 'category',)
-    list_filter = ('category',)
+class GradeAdmin(admin.ModelAdmin):
+    search_fields = ('grade', )
 
 class MCQuestionAdmin(admin.ModelAdmin):
-    list_display = ('content', 'category', )
-    list_filter = ('category',)
-    fields = ('content', 'category', 'sub_category', 'figure', 'quiz', 'explanation', 'answer_order')
+    list_display = ('content', 'grade', )
+    list_filter = ('grade',)
+    fields = ('content', 'grade', 'department', 'branch', 'figure', 'quiz', 'explanation', 'answer_order')
     search_fields = ('content', 'explanation')
     filter_horizontal = ('quiz',)
     inlines = [AnswerInline]
@@ -69,22 +64,21 @@ class ProgressAdmin(admin.ModelAdmin):
     search_fields = ('user', 'score', )
 
 class TFQuestionAdmin(admin.ModelAdmin):
-    list_display = ('content', 'category', )
-    list_filter = ('category',)
-    fields = ('content', 'category', 'sub_category', 'figure', 'quiz', 'explanation', 'correct',)
+    list_display = ('content', 'grade', )
+    list_filter = ('grade',)
+    fields = ('content', 'grade', 'department', 'branch', 'figure', 'quiz', 'explanation', 'correct',)
     search_fields = ('content', 'explanation')
     filter_horizontal = ('quiz',)
 
 class EssayQuestionAdmin(admin.ModelAdmin):
-    list_display = ('content', 'category', )
-    list_filter = ('category',)
-    fields = ('content', 'category', 'sub_category', 'quiz', 'explanation', )
+    list_display = ('content', 'grade', )
+    list_filter = ('grade',)
+    fields = ('content', 'grade', 'department', 'branch', 'quiz', 'explanation', )
     search_fields = ('content', 'explanation')
     filter_horizontal = ('quiz',)
 
 admin.site.register(Quiz, QuizAdmin)
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(SubCategory, SubCategoryAdmin)
+admin.site.register(Grade, GradeAdmin)
 admin.site.register(MCQuestion, MCQuestionAdmin)
 admin.site.register(Upload)
 admin.site.register(ProfileUpload)

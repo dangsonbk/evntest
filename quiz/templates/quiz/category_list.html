@@ -6,10 +6,10 @@
 <h2>{% trans "Category list" %}</h2>
 
 <ul>
-  {% for cat in category_list %}
+  {% for cat in grade_list %}
   <li>
-	<a href="{% url 'quiz_category_list_matching' category_name=cat.category %}">
-	  {{ cat.category }}
+	<a href="{% url 'quiz_grade_list_matching' grade_name=cat.grade %}">
+	  {{ cat.grade }}
 	</a>
   </li>
   {% endfor %}

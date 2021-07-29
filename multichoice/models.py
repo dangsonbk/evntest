@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from unicodedata import category
 from django.db import models
-from quiz.models import Question, Category, SubCategory, Quiz
+from quiz.models import Question, Quiz, Department, Branch, Grade
 from django import forms
 from openpyxl import load_workbook
 import urllib.parse
@@ -16,7 +16,7 @@ ANSWER_ORDER_OPTIONS = (
 
 class MCQuestion(Question):
 
-    answer_order = models.CharField(max_length=30, null=True, blank=True, choices=ANSWER_ORDER_OPTIONS, help_text="The order in which multichoice answer options are displayed to the user", verbose_name="Thứ tự câu trả lời")
+    answer_order = models.CharField(max_length=30, null=True, blank=True, choices=ANSWER_ORDER_OPTIONS, help_text="Cách thức hiển thị câu trả lời trên bài thi", verbose_name="Thứ tự câu trả lời")
 
     def check_if_correct(self, guess):
         answer = Answer.objects.get(id=guess)
@@ -28,7 +28,7 @@ class MCQuestion(Question):
         if self.answer_order == 'random':
             return queryset.order_by('?')
         if self.answer_order == 'none':
-            return queryset.order_by()
+            return queryset.order_by('?')
         return queryset
 
     def get_answers(self):
@@ -46,8 +46,8 @@ class MCQuestion(Question):
 
 class Answer(models.Model):
     question = models.ForeignKey(MCQuestion, verbose_name="Câu hỏi", on_delete=models.CASCADE)
-    content = models.CharField(max_length=1000, blank=False, help_text="Câu trả lời", verbose_name="Content")
-    correct = models.BooleanField(blank=False, default=False, help_text="Câu trả lời đúng", verbose_name="Correct")
+    content = models.CharField(max_length=1000, blank=False, help_text="Câu trả lời", verbose_name="Nội dung")
+    correct = models.BooleanField(blank=False, default=False, help_text="Câu trả lời đúng", verbose_name="Tick vào câu trả lời đúng")
 
     def __str__(self):
         return self.content
@@ -55,9 +55,12 @@ class Answer(models.Model):
     class Meta:
         verbose_name = "Câu trả lời"
         verbose_name_plural = "Câu trả lời"
+
 class Upload(models.Model):
-    quiz_file = models.FileField(upload_to='sample_quiz')
-    category = models.ForeignKey(Category, verbose_name="Phân loại", null=True, blank=True, on_delete=models.CASCADE)
+    quiz_file = models.FileField(upload_to='quiz')
+    grade = models.ForeignKey(Grade, verbose_name="Bậc thợ", null=True, blank=True, on_delete=models.DO_NOTHING)
+    department = models.ForeignKey(Department, verbose_name="Phòng ban", null=True, blank=True, on_delete=models.DO_NOTHING)
+    branch = models.ForeignKey(Branch, verbose_name="Chi nhánh", null=True, blank=True, on_delete=models.DO_NOTHING)
     imported = models.BooleanField(default=False, verbose_name="Đã nạp câu hỏi")
     def save(self, *args, **kwargs):
         self.imported = True
@@ -70,7 +73,6 @@ class Upload(models.Model):
             # Find start of quiz table
             start_of_quiz_table = False
             question_list = {"name": wb.title, "questions": []}
-            sub_cat = ""
             quiz_title = ""
             for row in wb:
                 if start_of_quiz_table and row[0].value:
@@ -92,24 +94,19 @@ class Upload(models.Model):
                 if row[0].value == "STT":
                     start_of_quiz_table = True
                 if not start_of_quiz_table and row[0].value :
-                    if not sub_cat:
-                        sub_cat = row[0].value.strip()
-                    else:
-                        quiz_title = row[0].value.strip()
-            if sub_cat and quiz_title:
-                # Create sub cat
-                sub1 = SubCategory.objects.create(sub_category=sub_cat, category=self.category)
+                    quiz_title = row[0].value.strip()
+            if quiz_title:
                 # Create quiz
                 quiz = Quiz.objects.create( title=quiz_title, description=quiz_title, url=urllib.parse.quote(quiz_title).lower(), pass_mark=50,
                                             success_text="Bạn đã hoàn thành bài thi", fail_text="Bạn đã không hoàn thành bài thi")
                 # Append question
                 for question in question_list["questions"]:
-                    ques = MCQuestion.objects.create(category=self.category, sub_category=sub1, content=question["question"])
+                    ques = None
+                    ques, created = MCQuestion.objects.get_or_create(grade=self.grade, department=self.department, branch=self.branch, content=question["question"])
                     ques.quiz.add(quiz)
-                    for choice in question["multichoices"]:
-                        answer = Answer.objects.create( question=ques,
-                                                        content=question["multichoices"][choice], correct=(question["answer"] == choice))
-
+                    if not created:
+                        for choice in question["multichoices"]:
+                            answer = Answer.objects.create( question=ques, content=question["multichoices"][choice], correct=(question["answer"] == choice))
             print(question_list)
 
     def __str__(self) -> str:

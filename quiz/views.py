@@ -12,7 +12,7 @@ from django.views.generic import DetailView, ListView, TemplateView, FormView, U
 from django.contrib.auth import views, login as auth_login
 
 from .forms import QuestionForm, EssayForm, QuizProfileForm
-from .models import Quiz, Category, Progress, Sitting, Question, Profile
+from .models import Quiz, Grade, Progress, Sitting, Question, Profile
 from essay.models import Essay_Question
 
 class CustomLoginView(views.LoginView):
@@ -68,14 +68,7 @@ class QuizListView(ListView):
     def get_queryset(self):
         queryset = super(QuizListView, self).get_queryset()
         queryset = queryset.filter(draft=False)
-
         profile = Profile.objects.get(user=self.request.user)
-        department = profile.department
-        if department.categories:
-            categories = department.categories
-            queryset = queryset.filter(
-                category__in=categories.values('id')
-            )
         return queryset
 
 
@@ -91,46 +84,40 @@ class QuizDetailView(DetailView):
             raise PermissionDenied
 
         context = self.get_context_data(object=self.object)
-        if not context['quiz'] or not context['quiz'].category:
+        if not context['quiz'] or not context['quiz'].grade:
             return redirect(reverse('quiz_index'))
-
         profile = Profile.objects.get(user=self.request.user)
-        department = profile.department
-        if department.categories:
-            categories = [cate['id'] for cate in department.categories.values('id')]
-            if context['quiz'].category.id not in categories:
-                return redirect(reverse('quiz_index'))
 
         return self.render_to_response(context)
 
 
 class CategoriesListView(ListView):
-    model = Category
+    model = Grade
 
 
-class ViewQuizListByCategory(ListView):
+class ViewQuizListByGrade(ListView):
     model = Quiz
-    template_name = 'view_quiz_category.html'
+    template_name = 'view_quiz_grade.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.category = get_object_or_404(
-            Category,
-            category=self.kwargs['category_name']
+        self.grade = get_object_or_404(
+            Grade,
+            grade=self.kwargs['grade_name']
         )
 
-        return super(ViewQuizListByCategory, self).\
+        return super(ViewQuizListByGrade, self).\
             dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(ViewQuizListByCategory, self)\
+        context = super(ViewQuizListByGrade, self)\
             .get_context_data(**kwargs)
 
-        context['category'] = self.category
+        context['grade'] = self.grade
         return context
 
     def get_queryset(self):
-        queryset = super(ViewQuizListByCategory, self).get_queryset()
-        return queryset.filter(category=self.category, draft=False)
+        queryset = super(ViewQuizListByGrade, self).get_queryset()
+        return queryset.filter(grade=self.grade, draft=False)
 
 class QuizUserProgressView(TemplateView):
     template_name = 'progress.html'
@@ -191,7 +178,6 @@ class QuizTake(FormView):
 
     def dispatch(self, request, *args, **kwargs):
         cats = Profile.objects.get(user=self.request.user).department
-        print(cats.categories)
         self.quiz = get_object_or_404(Quiz, url=self.kwargs['quiz_name'])
         if self.quiz.draft and not request.user.has_perm('quiz.change_quiz'):
             raise PermissionDenied
@@ -259,15 +245,8 @@ class QuizTake(FormView):
         context['question'] = self.question
         context['quiz'] = self.quiz
         
-        if not context['quiz'] or not context['quiz'].category:
+        if not context['quiz'] or not context['quiz'].grade:
             return redirect(reverse('quiz_index'))
-
-        profile = Profile.objects.get(user=self.request.user)
-        department = profile.department
-        if department.categories:
-            categories = [cate['id'] for cate in department.categories.values('id')]
-            if context['quiz'].category.id not in categories:
-                return redirect(reverse('quiz_index'))
 
         sid = f'tf-{self.quiz.id}'
         current_time = int(time.time())

@@ -22,35 +22,22 @@ GENDER_CHOICES = [
     ("1", "Nữ"),
 ]
 
-class CategoryManager(models.Manager):
+class GradeManager(models.Manager):
 
-    def new_category(self, category):
-        new_category = self.get_or_create(category=re.sub('\s+', '-', category).lower())
-        new_category.save()
-        return new_category
+    def new_grade(self, grade):
+        new_grade = self.get_or_create(grade=re.sub('\s+', '-', grade).lower())
+        new_grade.save()
+        return new_grade
 
-class Category(models.Model):
-    category = models.CharField(verbose_name="Phân loại", max_length=250, blank=True, unique=True, null=True)
-    objects = CategoryManager()
+class Grade(models.Model):
+    grade = models.CharField(verbose_name="Bậc thợ", max_length=250, blank=True, unique=True, null=True)
+    objects = GradeManager()
     class Meta:
-        verbose_name = "Phân loại"
-        verbose_name_plural = "Phân loại"
+        verbose_name = "Bậc thợ"
+        verbose_name_plural = "Bậc thợ"
 
     def __str__(self):
-        return self.category
-
-class SubCategory(models.Model):
-
-    sub_category = models.CharField(verbose_name="Phân loại nhỏ", max_length=250, blank=True, null=True)
-    category = models.ForeignKey(Category, null=True, blank=True,verbose_name="Phân loại chính", on_delete=models.CASCADE)
-    objects = CategoryManager()
-
-    class Meta:
-        verbose_name = "Phân loại nhỏ"
-        verbose_name_plural = "Phân loại nhỏ"
-
-    def __str__(self):
-        return self.sub_category + " (" + self.category.category + ")"
+        return self.grade
 
 class Department(models.Model):
     department = models.CharField(verbose_name="Phòng ban", max_length=512, null=True, blank=True)
@@ -138,7 +125,7 @@ class Quiz(models.Model):
     title = models.CharField(verbose_name="Tên bài thi", max_length=60, blank=False)
     description = models.TextField(verbose_name="Chi tiết", blank=True, help_text="Thông tin bài thi")
     url = models.SlugField(max_length=60, blank=False, help_text="Đường dẫn tới bài thi", verbose_name="Đường dẫn")
-    category = models.ForeignKey(Category, null=True, blank=True, verbose_name="Phân loại", on_delete=models.CASCADE)
+    grade = models.ForeignKey(Grade, null=True, blank=True, verbose_name="Bậc thợ", on_delete=models.CASCADE)
     random_order = models.BooleanField(blank=False, default=False, verbose_name="Câu hỏi ngẫu nhiên", help_text="Sắp xếp câu hỏi ngẫu nhiên")
     max_questions = models.PositiveIntegerField(blank=True, null=True, verbose_name="Số câu hỏi", help_text="Số lượng câu hỏi tối đa.")
     answers_at_end = models.BooleanField(blank=False, default=False, help_text="Hiển thị kết quả sau khi nộp bài", verbose_name="Xem kết quả")
@@ -200,7 +187,7 @@ class Progress(models.Model):
     Progress is used to track an individual signed in users score on different
     quiz's and categories
 
-    Data stored in csv using the format: category, score, possible, category, score, possible, ...
+    Data stored in csv using the format: grade, score, possible, grade, score, possible, ...
     """
     user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name="Thí sinh", on_delete=models.CASCADE)
     score = models.CharField(max_length=1024, verbose_name="Điểm", validators=[validate_comma_separated_integer_list])
@@ -216,20 +203,20 @@ class Progress(models.Model):
     @property
     def list_all_cat_scores(self):
         """
-        Returns a dict in which the key is the category name and the item is
+        Returns a dict in which the key is the grade name and the item is
         a list of three integers.
 
         The first is the number of questions correct,
         the second is the possible best score,
         the third is the percentage correct.
 
-        The dict will have one key for every category that you have defined
+        The dict will have one key for every grade that you have defined
         """
         score_before = self.score
         output = {}
 
-        for cat in Category.objects.all():
-            to_find = re.escape(cat.category) + r",(\d+),(\d+),"
+        for cat in Grade.objects.all():
+            to_find = re.escape(cat.grade) + r",(\d+),(\d+),"
             #  group 1 is score, group 2 is highest possible
 
             match = re.search(to_find, self.score, re.IGNORECASE)
@@ -243,14 +230,14 @@ class Progress(models.Model):
                 except:
                     percent = 0
 
-                output[cat.category] = [score, possible, percent]
+                output[cat.grade] = [score, possible, percent]
 
-            else:  # if category has not been added yet, add it.
-                self.score += cat.category + ",0,0,"
-                output[cat.category] = [0, 0]
+            else:  # if grade has not been added yet, add it.
+                self.score += cat.grade + ",0,0,"
+                output[cat.grade] = [0, 0]
 
         if len(self.score) > len(score_before):
-            # If a new category has been added, save changes.
+            # If a new grade has been added, save changes.
             self.save()
 
         return output
@@ -262,25 +249,25 @@ class Progress(models.Model):
 
         Does not return anything.
         """
-        category_test = Category.objects.filter(category=question.category).exists()
+        grade_test = Grade.objects.filter(grade=question.grade).exists()
 
-        if any([item is False for item in [category_test, score_to_add, possible_to_add, isinstance(score_to_add, int), isinstance(possible_to_add, int)]]):
-            return "error", "category does not exist or invalid score"
+        if any([item is False for item in [grade_test, score_to_add, possible_to_add, isinstance(score_to_add, int), isinstance(possible_to_add, int)]]):
+            return "error", "grade does not exist or invalid score"
 
-        to_find = re.escape(str(question.category)) + r",(?P<score>\d+),(?P<possible>\d+),"
+        to_find = re.escape(str(question.grade)) + r",(?P<score>\d+),(?P<possible>\d+),"
         match = re.search(to_find, self.score, re.IGNORECASE)
 
         if match:
             updated_score = int(match.group('score')) + abs(score_to_add)
             updated_possible = int(match.group('possible')) + abs(possible_to_add)
-            new_score = ",".join([str(question.category), str(updated_score), str(updated_possible), ""])
+            new_score = ",".join([str(question.grade), str(updated_score), str(updated_possible), ""])
             # swap old score for the new one
             self.score = self.score.replace(match.group(), new_score)
             self.save()
 
         else:
             #  if not present but existing, add with the points passed in
-            self.score += ",".join([str(question.category), str(score_to_add), str(possible_to_add), ""])
+            self.score += ",".join([str(question.grade), str(score_to_add), str(possible_to_add), ""])
             self.save()
 
     def show_exams(self):
@@ -479,18 +466,18 @@ class Question(models.Model):
     Base class for all question types.
     Shared properties placed here.
     """
-    quiz = models.ManyToManyField(Quiz, verbose_name="Quiz", blank=True)
-    category = models.ForeignKey(Category, verbose_name="Category", blank=True, null=True, on_delete=models.CASCADE)
-    sub_category = models.ForeignKey(SubCategory, verbose_name="Sub-Category", blank=True, null=True, on_delete=models.CASCADE)
-    figure = models.ImageField(upload_to='uploads/%Y/%m/%d', blank=True, null=True, verbose_name="Figure")
-    content = models.CharField(max_length=1000, blank=False, help_text="Enter the question text that you want displayed", verbose_name='Question')
-    explanation = models.TextField(max_length=2000, blank=True, help_text="Explanation to be shown after the question has been answered.", verbose_name='Explanation')
+    quiz = models.ManyToManyField(Quiz, verbose_name="Bộ đề", blank=True)
+    branch = models.ForeignKey(Branch, verbose_name="Chi nhánh", blank=True, null=True, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, verbose_name="Phòng ban", blank=True, null=True, on_delete=models.CASCADE)
+    grade = models.ForeignKey(Grade, verbose_name="Bậc thợ", blank=True, null=True, on_delete=models.CASCADE)
+    figure = models.ImageField(upload_to='uploads/%Y/%m/%d', blank=True, null=True, verbose_name="Hình vẽ")
+    content = models.CharField(max_length=1000, blank=False, help_text="Nội dung câu hỏi", verbose_name='Nội dung')
+    explanation = models.TextField(max_length=2000, blank=True, help_text="Giải thích đáp án (chỉ hiện thị khi thí sinh làm bài xong)", verbose_name='Giải thích')
     objects = InheritanceManager()
 
     class Meta:
-        verbose_name = "Question"
-        verbose_name_plural = "Questions"
-        ordering = ['category']
+        verbose_name = "Câu hỏi"
+        verbose_name_plural = "Câu hỏi"
 
     def __str__(self):
         return self.content

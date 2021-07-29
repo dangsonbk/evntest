@@ -35,4 +35,4 @@ class TF_Question(Question):
     class Meta:
         verbose_name = "Câu hỏi True/False"
         verbose_name_plural = "Câu hỏi True/False"
-        ordering = ['category']
+        ordering = ['grade']

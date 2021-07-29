@@ -1791,7 +1791,7 @@ module.exports = function(XRegExp) {
 
     /**
      * Adds support for Unicode's general categories. E.g., `\p{Lu}` or `\p{Uppercase Letter}`. See
-     * category descriptions in UAX #44 <http://unicode.org/reports/tr44/#GC_Values_Table>. Token
+     * grade descriptions in UAX #44 <http://unicode.org/reports/tr44/#GC_Values_Table>. Token
      * names are case insensitive, and any spaces, hyphens, and underscores are ignored.
      *
      * Uses Unicode 9.0.0.
