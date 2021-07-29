@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from unicodedata import category
-from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from quiz.models import Question, Category, SubCategory, Quiz
 from django import forms
@@ -10,14 +9,14 @@ import re
 
 
 ANSWER_ORDER_OPTIONS = (
-    ('content', _('Nội dung')),
-    ('random', _('Ngẫu nhiên')),
-    ('none', _('Không chọn'))
+    ('content', 'Nội dung'),
+    ('random', 'Ngẫu nhiên'),
+    ('none', 'Không chọn')
 )
 
 class MCQuestion(Question):
 
-    answer_order = models.CharField(max_length=30, null=True, blank=True, choices=ANSWER_ORDER_OPTIONS, help_text=_("The order in which multichoice answer options are displayed to the user"),verbose_name=_("Answer Order"))
+    answer_order = models.CharField(max_length=30, null=True, blank=True, choices=ANSWER_ORDER_OPTIONS, help_text="The order in which multichoice answer options are displayed to the user", verbose_name="Thứ tự câu trả lời")
 
     def check_if_correct(self, guess):
         answer = Answer.objects.get(id=guess)
@@ -42,20 +41,20 @@ class MCQuestion(Question):
         return Answer.objects.get(id=guess).content
 
     class Meta:
-        verbose_name = _("Câu hỏi nhiều lựa chọn")
-        verbose_name_plural = _("Câu hỏi nhiều lựa chọn")
+        verbose_name = "Câu hỏi nhiều lựa chọn"
+        verbose_name_plural = "Câu hỏi nhiều lựa chọn"
 
 class Answer(models.Model):
-    question = models.ForeignKey(MCQuestion, verbose_name=_("Câu hỏi"), on_delete=models.CASCADE)
-    content = models.CharField(max_length=1000, blank=False, help_text="Câu trả lời", verbose_name=_("Content"))
-    correct = models.BooleanField(blank=False, default=False, help_text="Câu trả lời đúng", verbose_name=_("Correct"))
+    question = models.ForeignKey(MCQuestion, verbose_name="Câu hỏi", on_delete=models.CASCADE)
+    content = models.CharField(max_length=1000, blank=False, help_text="Câu trả lời", verbose_name="Content")
+    correct = models.BooleanField(blank=False, default=False, help_text="Câu trả lời đúng", verbose_name="Correct")
 
     def __str__(self):
         return self.content
 
     class Meta:
-        verbose_name = _("Câu trả lời")
-        verbose_name_plural = _("Câu trả lời")
+        verbose_name = "Câu trả lời"
+        verbose_name_plural = "Câu trả lời"
 class Upload(models.Model):
     quiz_file = models.FileField(upload_to='sample_quiz')
     category = models.ForeignKey(Category, verbose_name="Phân loại", null=True, blank=True, on_delete=models.CASCADE)

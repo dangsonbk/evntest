@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.core.validators import (
     MaxValueValidator, validate_comma_separated_integer_list,
 )
-from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.conf import settings
 
@@ -16,9 +15,11 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
+from openpyxl import load_workbook
+
 GENDER_CHOICES = [
-    ("0", _("Nam")),
-    ("1", _("Nữ")),
+    ("0", "Nam"),
+    ("1", "Nữ"),
 ]
 
 class CategoryManager(models.Manager):
@@ -29,36 +30,43 @@ class CategoryManager(models.Manager):
         return new_category
 
 class Category(models.Model):
-    category = models.CharField(verbose_name=_("Phân loại"), max_length=250, blank=True, unique=True, null=True)
+    category = models.CharField(verbose_name="Phân loại", max_length=250, blank=True, unique=True, null=True)
     objects = CategoryManager()
     class Meta:
-        verbose_name = _("Phân loại")
-        verbose_name_plural = _("Phân loại")
+        verbose_name = "Phân loại"
+        verbose_name_plural = "Phân loại"
 
     def __str__(self):
         return self.category
 
 class SubCategory(models.Model):
 
-    sub_category = models.CharField(verbose_name=_("Phân loại nhỏ"), max_length=250, blank=True, null=True)
-    category = models.ForeignKey(Category, null=True, blank=True,verbose_name=_("Phân loại chính"), on_delete=models.CASCADE)
+    sub_category = models.CharField(verbose_name="Phân loại nhỏ", max_length=250, blank=True, null=True)
+    category = models.ForeignKey(Category, null=True, blank=True,verbose_name="Phân loại chính", on_delete=models.CASCADE)
     objects = CategoryManager()
 
     class Meta:
-        verbose_name = _("Phân loại nhỏ")
-        verbose_name_plural = _("Phân loại nhỏ")
+        verbose_name = "Phân loại nhỏ"
+        verbose_name_plural = "Phân loại nhỏ"
 
     def __str__(self):
         return self.sub_category + " (" + self.category.category + ")"
 
 class Department(models.Model):
     department = models.CharField(verbose_name="Phòng ban", max_length=512, null=True, blank=True)
-    categories = models.ManyToManyField(Category, verbose_name="Phân loại đề thi", blank=True)
     def __str__(self) -> str:
         return self.department
     class Meta:
-        verbose_name = _("Phòng ban")
-        verbose_name_plural = _("Phòng ban")
+        verbose_name = "Phòng ban"
+        verbose_name_plural = "Phòng ban"
+
+class Branch(models.Model):
+    branch = models.CharField(verbose_name="Chi nhánh", max_length=512, null=True, blank=True)
+    def __str__(self) -> str:
+        return self.branch
+    class Meta:
+        verbose_name = "Chi nhánh"
+        verbose_name_plural = "Chi nhánh"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -68,7 +76,7 @@ class Profile(models.Model):
     title = models.CharField(verbose_name="Chức danh", max_length=512, null=True, blank=True)
     dob = models.CharField(verbose_name="Ngày sinh", max_length=10, null=True, blank=True)
     id_card = models.CharField(max_length=12, null=True, blank=True)
-    branch = models.CharField(verbose_name="Chi nhánh", max_length=512, null=True, blank=True)
+    branch = models.ForeignKey(Branch, null=True, verbose_name="Chi nhánh", on_delete=models.CASCADE)
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
@@ -80,30 +88,69 @@ class Profile(models.Model):
         instance.profile.save()
 
     class Meta:
-        verbose_name = _("Thí sinh")
-        verbose_name_plural = _("Thí sinh")
+        verbose_name = "Thí sinh"
+        verbose_name_plural = "Thí sinh"
     
     def __str__(self) -> str:
-        return str(self.user)
+        return "".join([str(self.user), "-", str(self.full_name)])
+
+class ProfileUpload(models.Model):
+    profile_file = models.FileField(upload_to='profile_list')
+    branch = models.ForeignKey(Branch, null=True, verbose_name="Chi nhánh", on_delete=models.DO_NOTHING)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.import_worksheet()
+
+    def import_worksheet(self):
+        start_of_quiz_table = False
+        user_list = []
+        wbs = load_workbook(self.profile_file.path)
+
+        for row in wbs.worksheets[0]:
+            if start_of_quiz_table and row[1].value and row[2].value and row[3].value and row[4].value:
+                _user = User.objects.get_or_create(username=str(row[0].value))
+                _department = Department.objects.get_or_create(department=row[4].value)
+                _profile = Profile.objects.update_or_create(
+                    user=_user[0],
+                    defaults={
+                        'full_name': row[1].value,
+                        'gender': row[3].value,
+                        'department': _department[0],
+                        'title': "nhân viên",
+                        'dob': row[2].value,
+                        'id_card':str(row[0].value),
+                        'branch': self.branch
+                    }
+                )
+            if row[0].value == "mahocvien":
+                start_of_quiz_table = True
+                print("Start of quiz table found, starting to import")
+
+    def __str__(self) -> str:
+        return self.profile_file.name
+
+    class Meta:
+        verbose_name = "Tải lên danh sách thí sinh"
+        verbose_name_plural = "Tải lên danh sách thí sinh"
 
 class Quiz(models.Model):
 
-    title = models.CharField(verbose_name=_("Tên bài thi"), max_length=60, blank=False)
-    description = models.TextField(verbose_name=_("Chi tiết"), blank=True, help_text=_("Thông tin bài thi"))
-    url = models.SlugField(max_length=60, blank=False, help_text=_("Đường dẫn tới bài thi"), verbose_name=_("Đường dẫn"))
-    category = models.ForeignKey(Category, null=True, blank=True, verbose_name=_("Phân loại"), on_delete=models.CASCADE)
-    random_order = models.BooleanField(blank=False, default=False, verbose_name=_("Câu hỏi ngẫu nhiên"), help_text=_("Sắp xếp câu hỏi ngẫu nhiên"))
-    max_questions = models.PositiveIntegerField(blank=True, null=True, verbose_name=_("Số câu hỏi"), help_text=_("Số lượng câu hỏi tối đa."))
-    answers_at_end = models.BooleanField(blank=False, default=False, help_text=_("Hiển thị kết quả sau khi nộp bài"), verbose_name=_("Xem kết quả"))
-    exam_paper = models.BooleanField(blank=False, default=False,help_text=_("Hiển thị toàn bộ câu hỏi một lần"), verbose_name=_("Hiển thị toàn bộ câu hỏi"))
-    single_attempt = models.BooleanField(blank=False, default=False, help_text=_("Chỉ cho phép thi một lần hoặc nhiều lần"), verbose_name=_("Thi một lần"))
-    pass_mark = models.SmallIntegerField(blank=True, default=0, verbose_name=_("Điểm tối thiểu"), help_text=_("Điểm tối thiểu để đạt"), validators=[MaxValueValidator(100)])
-    success_text = models.TextField(blank=True, help_text=_("Thông báo thi đạt"), verbose_name=_("Thông báo thi đạt"))
-    fail_text = models.TextField(verbose_name=_("Thông báo thi trượt"), blank=True, help_text=_("Thông báo thi trượt"))
-    draft = models.BooleanField(blank=True, default=False, verbose_name=_("Draft"), help_text=_("If yes, the quiz is not displayed in the quiz list and can only be taken by users who can edit quizzes."))
-    start = models.DateTimeField(auto_now_add=True, verbose_name=_("Thời gian mở đề"))
-    end = models.DateTimeField(null=True, blank=True, verbose_name=_("Hạn cuối làm bài"))
-    duration = models.IntegerField(default=30, verbose_name=_("Thời gian làm bài"))
+    title = models.CharField(verbose_name="Tên bài thi", max_length=60, blank=False)
+    description = models.TextField(verbose_name="Chi tiết", blank=True, help_text="Thông tin bài thi")
+    url = models.SlugField(max_length=60, blank=False, help_text="Đường dẫn tới bài thi", verbose_name="Đường dẫn")
+    category = models.ForeignKey(Category, null=True, blank=True, verbose_name="Phân loại", on_delete=models.CASCADE)
+    random_order = models.BooleanField(blank=False, default=False, verbose_name="Câu hỏi ngẫu nhiên", help_text="Sắp xếp câu hỏi ngẫu nhiên")
+    max_questions = models.PositiveIntegerField(blank=True, null=True, verbose_name="Số câu hỏi", help_text="Số lượng câu hỏi tối đa.")
+    answers_at_end = models.BooleanField(blank=False, default=False, help_text="Hiển thị kết quả sau khi nộp bài", verbose_name="Xem kết quả")
+    exam_paper = models.BooleanField(blank=False, default=False,help_text="Hiển thị toàn bộ câu hỏi một lần", verbose_name="Hiển thị toàn bộ câu hỏi")
+    single_attempt = models.BooleanField(blank=False, default=False, help_text="Chỉ cho phép thi một lần hoặc nhiều lần", verbose_name="Thi một lần")
+    pass_mark = models.SmallIntegerField(blank=True, default=0, verbose_name="Điểm tối thiểu", help_text="Điểm tối thiểu để đạt", validators=[MaxValueValidator(100)])
+    success_text = models.TextField(blank=True, help_text="Thông báo thi đạt", verbose_name="Thông báo thi đạt")
+    fail_text = models.TextField(verbose_name="Thông báo thi trượt", blank=True, help_text="Thông báo thi trượt")
+    draft = models.BooleanField(blank=True, default=False, verbose_name="Draft", help_text="If yes, the quiz is not displayed in the quiz list and can only be taken by users who can edit quizzes.")
+    start = models.DateTimeField(auto_now_add=True, verbose_name="Thời gian mở đề")
+    end = models.DateTimeField(null=True, blank=True, verbose_name="Hạn cuối làm bài")
+    duration = models.IntegerField(default=30, verbose_name="Thời gian làm bài")
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         self.url = re.sub('\s+', '-', self.url).lower()
         self.url = ''.join(letter for letter in self.url if letter.isalnum() or letter == '-')
@@ -112,13 +159,13 @@ class Quiz(models.Model):
             self.exam_paper = True
 
         if self.pass_mark > 100:
-            raise ValidationError('%s is above 100' % self.pass_mark)
+            raise ValidationError('%s trên 100' % self.pass_mark)
 
         super(Quiz, self).save(force_insert, force_update, *args, **kwargs)
 
     class Meta:
-        verbose_name = _("Đề thi")
-        verbose_name_plural = _("Đề thi")
+        verbose_name = "Đề thi"
+        verbose_name_plural = "Đề thi"
 
     def __str__(self):
         return self.title
@@ -155,16 +202,16 @@ class Progress(models.Model):
 
     Data stored in csv using the format: category, score, possible, category, score, possible, ...
     """
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name=_("Thí sinh"), on_delete=models.CASCADE)
-    score = models.CharField(max_length=1024, verbose_name=_("Điểm"), validators=[validate_comma_separated_integer_list])
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name="Thí sinh", on_delete=models.CASCADE)
+    score = models.CharField(max_length=1024, verbose_name="Điểm", validators=[validate_comma_separated_integer_list])
     objects = ProgressManager()
 
     def __str__(self) -> str:
         return "".join((str(self.user), ))
 
     class Meta:
-        verbose_name = _("Bài làm của thí sinh")
-        verbose_name_plural = _("Bài làm của thí sinh")
+        verbose_name = "Bài làm của thí sinh"
+        verbose_name_plural = "Bài làm của thí sinh"
 
     @property
     def list_all_cat_scores(self):
@@ -218,7 +265,7 @@ class Progress(models.Model):
         category_test = Category.objects.filter(category=question.category).exists()
 
         if any([item is False for item in [category_test, score_to_add, possible_to_add, isinstance(score_to_add, int), isinstance(possible_to_add, int)]]):
-            return _("error"), _("category does not exist or invalid score")
+            return "error", "category does not exist or invalid score"
 
         to_find = re.escape(str(question.category)) + r",(?P<score>\d+),(?P<possible>\d+),"
         match = re.search(to_find, self.score, re.IGNORECASE)
@@ -286,20 +333,20 @@ class Sitting(models.Model):
     with the answer the user gave.
     """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"), on_delete=models.CASCADE)
-    quiz = models.ForeignKey(Quiz, verbose_name=_("Quiz"), on_delete=models.CASCADE)
-    question_order = models.CharField(max_length=1024, verbose_name=_("Question Order"), validators=[validate_comma_separated_integer_list])
-    question_list = models.CharField(max_length=1024, verbose_name=_("Question List"), validators=[validate_comma_separated_integer_list])
-    incorrect_questions = models.CharField(max_length=1024, blank=True, verbose_name=_("Incorrect questions"), validators=[validate_comma_separated_integer_list])
-    current_score = models.IntegerField(verbose_name=_("Current Score"))
-    complete = models.BooleanField(default=False, blank=False,verbose_name=_("Complete"))
-    user_answers = models.TextField(blank=True, default='{}',verbose_name=_("User Answers"))
-    start = models.DateTimeField(auto_now_add=True, verbose_name=_("Start"))
-    end = models.DateTimeField(null=True, blank=True, verbose_name=_("End"))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="Thí sinh", on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, verbose_name="Quiz", on_delete=models.CASCADE)
+    question_order = models.CharField(max_length=1024, verbose_name="Thứ tự câu hỏi", validators=[validate_comma_separated_integer_list])
+    question_list = models.CharField(max_length=1024, verbose_name="Danh sách câu hỏi", validators=[validate_comma_separated_integer_list])
+    incorrect_questions = models.CharField(max_length=1024, blank=True, verbose_name="Câu hỏi sai", validators=[validate_comma_separated_integer_list])
+    current_score = models.IntegerField(verbose_name="Điểm hiện tại")
+    complete = models.BooleanField(default=False, blank=False,verbose_name="Hoàn thành")
+    user_answers = models.TextField(blank=True, default='{}',verbose_name="Câu trả lời của thí sinh")
+    start = models.DateTimeField(auto_now_add=True, verbose_name="Bắt đầu")
+    end = models.DateTimeField(null=True, blank=True, verbose_name="Kết thúc")
     objects = SittingManager()
 
     class Meta:
-        permissions = (("view_sittings", _("Can see completed exams.")),)
+        permissions = (("view_sittings", "Có thể xem toàn bộ bài thi."),)
 
     def get_first_question(self):
         """
@@ -432,17 +479,17 @@ class Question(models.Model):
     Base class for all question types.
     Shared properties placed here.
     """
-    quiz = models.ManyToManyField(Quiz, verbose_name=_("Quiz"), blank=True)
-    category = models.ForeignKey(Category, verbose_name=_("Category"), blank=True, null=True, on_delete=models.CASCADE)
-    sub_category = models.ForeignKey(SubCategory, verbose_name=_("Sub-Category"), blank=True, null=True, on_delete=models.CASCADE)
-    figure = models.ImageField(upload_to='uploads/%Y/%m/%d', blank=True, null=True, verbose_name=_("Figure"))
-    content = models.CharField(max_length=1000, blank=False, help_text=_("Enter the question text that you want displayed"), verbose_name=_('Question'))
-    explanation = models.TextField(max_length=2000, blank=True, help_text=_("Explanation to be shown after the question has been answered."), verbose_name=_('Explanation'))
+    quiz = models.ManyToManyField(Quiz, verbose_name="Quiz", blank=True)
+    category = models.ForeignKey(Category, verbose_name="Category", blank=True, null=True, on_delete=models.CASCADE)
+    sub_category = models.ForeignKey(SubCategory, verbose_name="Sub-Category", blank=True, null=True, on_delete=models.CASCADE)
+    figure = models.ImageField(upload_to='uploads/%Y/%m/%d', blank=True, null=True, verbose_name="Figure")
+    content = models.CharField(max_length=1000, blank=False, help_text="Enter the question text that you want displayed", verbose_name='Question')
+    explanation = models.TextField(max_length=2000, blank=True, help_text="Explanation to be shown after the question has been answered.", verbose_name='Explanation')
     objects = InheritanceManager()
 
     class Meta:
-        verbose_name = _("Question")
-        verbose_name_plural = _("Questions")
+        verbose_name = "Question"
+        verbose_name_plural = "Questions"
         ordering = ['category']
 
     def __str__(self):

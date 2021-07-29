@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-from django.utils.translation import ugettext_lazy as _
 from quiz.models import Question
 
 class Essay_Question(Question):
@@ -20,5 +19,5 @@ class Essay_Question(Question):
         return self.content
 
     class Meta:
-        verbose_name = _("Essay style question")
-        verbose_name_plural = _("Essay style questions")
+        verbose_name = "Câu hỏi tự luận"
+        verbose_name_plural = "Câu hỏi tự luận"

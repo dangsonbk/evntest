@@ -1,9 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from django.utils.translation import ugettext_lazy as _
-
-from .models import Quiz, Category, SubCategory, Progress, Question, Profile, Department
+from .models import Quiz, Category, SubCategory, Progress, Question, Profile, ProfileUpload, Department, Branch
 from multichoice.models import MCQuestion, Answer, Upload
 from true_false.models import TF_Question
 from essay.models import Essay_Question
@@ -25,9 +23,9 @@ class QuizAdminForm(forms.ModelForm):
     questions = forms.ModelMultipleChoiceField(
         queryset=Question.objects.all().select_subclasses(),
         required=False,
-        label=_("Questions"),
+        label="Danh sách câu hỏi",
         widget=FilteredSelectMultiple(
-            verbose_name=_("Questions"),
+            verbose_name="Danh sách câu hỏi",
             is_stacked=False))
 
     def __init__(self, *args, **kwargs):
@@ -89,7 +87,9 @@ admin.site.register(Category, CategoryAdmin)
 admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(MCQuestion, MCQuestionAdmin)
 admin.site.register(Upload)
+admin.site.register(ProfileUpload)
 admin.site.register(Department)
+admin.site.register(Branch)
 admin.site.register(Progress, ProgressAdmin)
 admin.site.register(TF_Question, TFQuestionAdmin)
 admin.site.register(Essay_Question, EssayQuestionAdmin)

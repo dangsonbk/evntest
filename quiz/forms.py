@@ -1,24 +1,7 @@
 from django import forms
 from django.forms.widgets import RadioSelect, Textarea
-from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from quiz.models import Profile
-
-BRANCH_CHOICES = [
-    ('tong-cong-ty-phat-dien-1', _('tong-cong-ty-phat-dien-1')),
-    ('cong-ty-co-phan-nhiet-dien-quang-ninh', _('cong-ty-co-phan-nhiet-dien-quang-ninh')),
-    ('cong-ty-co-phan-thuy-dien-da-nhim-ham-thuan-da-mi', _('cong-ty-co-phan-thuy0dien-da-nhim-ham-thuan-da-mi')),
-    ('cong-ty-nhiet-dien-duyen-hai', _('cong-ty-nhiet-dien-duyen-hai')),
-    ('cong-ty-nhiet-dien-nghi-son', _('cong-ty-nhiet-dien-nghi-son')),
-    ('cong-ty-nhiet-dien-uong-bi', _('cong-ty-nhiet-dien-uong-bi')),
-    ('cong-ty-thuy-dien-dai-ninh', _('cong-ty-thuy-dien-dai-ninh')),
-    ('cong-ty-thuy-dien-dong-nai', _('cong-ty-thuy-dien-dong-nai')),
-    ('cong-ty-thuy-dien-ban-ve', _('cong-ty-thuy-dien-ban-ve')),
-    ('cong-ty-thuy-dien-song-tranh', _('cong-ty-thuy-dien-song-tranh')),
-    ('cong-ty-co-phan-phat-trien-dien-luc-viet-nam', _('cong-ty-co-phan-phat-trien-dien-luc-viet-nam')),
-    ('thuc-tap-vien-dhd', _('thuc-tap-vien-dhd'))
-]
-
 
 class QuestionForm(forms.Form):
     def __init__(self, question, *args, **kwargs):
@@ -37,11 +20,11 @@ class EssayForm(forms.Form):
 
 class QuizProfileForm(forms.ModelForm):
     full_name = forms.CharField(
-        label=_('Họ tên'), max_length=191, required=True,
+        label='Họ tên', max_length=191, required=True,
         widget=forms.TextInput(attrs={'class': 'input is-normal'})
     )
     identity_code = forms.CharField(
-        label=_('Mã dự thi'), max_length=191, required=False,
+        label='Mã dự thi', max_length=191, required=False,
         widget=forms.TextInput(attrs={
             'class': 'input is-normal', 'readonly': 'readonly', 'disabled': 'disabled'
         })
@@ -52,19 +35,20 @@ class QuizProfileForm(forms.ModelForm):
         self.fields['identity_code'].initial = self.instance.id
         self.fields['full_name'].initial = self.instance.user.first_name
         self.fields['department'].required = True
+        # self.fields['branch'].required = True
         self.fields['full_name'].required = True
         self.fields['id_card'].required = True
     
     def clean_full_name(self):
         data = self.cleaned_data['full_name']
         if len(data) < 5:
-            raise ValidationError(_('Tên quá ngắn!'))
+            raise ValidationError('Tên quá ngắn!')
         return data
 
     def clean_id_card(self):
         data = self.cleaned_data['id_card']
         if len(data) < 9:
-            raise ValidationError(_('Không hợp lệ'))
+            raise ValidationError('Không hợp lệ')
         return data
 
     class Meta:
@@ -75,12 +59,12 @@ class QuizProfileForm(forms.ModelForm):
         )
 
         labels = {
-            'gender': _('Giới tính'),
-            'department': _('Phòng ban'),
-            'title': _('Chức danh'),
-            'dob': _('Ngày sinh'),
-            'id_card': _('Mã nhân viên'),
-            'branch': _('Chi nhánh')
+            'gender': 'Giới tính',
+            'department': 'Phòng ban',
+            'title': 'Chức danh',
+            'dob': 'Ngày sinh',
+            'id_card': 'Mã nhân viên',
+            'branch': 'Chi nhánh'
         }
 
         widgets = {
@@ -88,6 +72,6 @@ class QuizProfileForm(forms.ModelForm):
             'department': forms.Select(attrs={'class': 'input is-normal'}),
             'title': forms.TextInput(attrs={'class': 'input is-normal'}),
             'id_card': forms.TextInput(attrs={'class': 'input is-normal'}),
-            'branch': forms.Select(attrs={'class': 'input is-normal'}, choices=BRANCH_CHOICES),
+            # 'branch': forms.Select(attrs={'class': 'input is-normal'}),
             'dob': forms.DateInput(attrs={'class': 'input is-normal'}),
         }
