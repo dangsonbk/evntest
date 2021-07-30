@@ -24,15 +24,12 @@ class QuizAdminForm(forms.ModelForm):
         queryset=Question.objects.all().select_subclasses(),
         required=False,
         label="Danh sách câu hỏi",
-        widget=FilteredSelectMultiple(
-            verbose_name="Danh sách câu hỏi",
-            is_stacked=False))
+        widget=FilteredSelectMultiple(verbose_name="Danh sách câu hỏi", is_stacked=False))
 
     def __init__(self, *args, **kwargs):
         super(QuizAdminForm, self).__init__(*args, **kwargs)
         if self.instance.pk:
-            self.fields['questions'].initial =\
-                self.instance.question_set.all().select_subclasses()
+            self.fields['questions'].initial = self.instance.question_set.all().select_subclasses()
 
     def save(self, commit=True):
         quiz = super(QuizAdminForm, self).save(commit=False)
@@ -45,7 +42,7 @@ class ProfileAdmin(admin.ModelAdmin):
     pass
 class QuizAdmin(admin.ModelAdmin):
     form = QuizAdminForm
-    list_display = ('title', 'grade', )
+    list_display = ('title', 'grade')
     list_filter = ('grade',)
     search_fields = ('description', 'grade', )
 

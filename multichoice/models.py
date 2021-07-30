@@ -73,7 +73,7 @@ class Upload(models.Model):
             # Find start of quiz table
             start_of_quiz_table = False
             question_list = {"name": wb.title, "questions": []}
-            quiz_title = ""
+            quiz_title = None
             for row in wb:
                 if start_of_quiz_table and row[0].value:
                     regx = re.search("(Câu \d+).(.+)", row[1].value)
@@ -93,12 +93,18 @@ class Upload(models.Model):
                         print("Question format does not match: ", row[1].value)
                 if row[0].value == "STT":
                     start_of_quiz_table = True
-                if not start_of_quiz_table and row[0].value :
+                if not start_of_quiz_table and row[0].value and not quiz_title:
                     quiz_title = row[0].value.strip()
             if quiz_title:
                 # Create quiz
-                quiz = Quiz.objects.create( title=quiz_title, description=quiz_title, url=urllib.parse.quote(quiz_title).lower(), pass_mark=50,
-                                            success_text="Bạn đã hoàn thành bài thi", fail_text="Bạn đã không hoàn thành bài thi")
+                quiz, _ = Quiz.objects.get_or_create( title=quiz_title, defaults={
+                                                    "grade": self.grade,
+                                                    "description": quiz_title,
+                                                    "url": urllib.parse.quote(quiz_title).lower(),
+                                                    "pass_mark": 50,
+                                                    "success_text": "Bạn đã hoàn thành bài thi",
+                                                    "fail_text": "Bạn đã không hoàn thành bài thi"}
+                                                )
                 # Append question
                 for question in question_list["questions"]:
                     ques = None
@@ -106,8 +112,7 @@ class Upload(models.Model):
                     ques.quiz.add(quiz)
                     if created:
                         for choice in question["multichoices"]:
-                            answer = Answer.objects.create( question=ques, content=question["multichoices"][choice], correct=(question["answer"] == choice))
-            print(question_list)
+                            Answer.objects.create( question=ques, content=question["multichoices"][choice], correct=(question["answer"] == choice))
 
     def __str__(self) -> str:
         return self.quiz_file.name

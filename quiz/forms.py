@@ -23,16 +23,16 @@ class QuizProfileForm(forms.ModelForm):
         label='Họ tên', max_length=191, required=True,
         widget=forms.TextInput(attrs={'class': 'input is-normal'})
     )
-    identity_code = forms.CharField(
-        label='Mã dự thi', max_length=191, required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'input is-normal', 'readonly': 'readonly', 'disabled': 'disabled'
-        })
-    )
+    # identity_code = forms.CharField(
+    #     label='Mã dự thi', max_length=191, required=False,
+    #     widget=forms.TextInput(attrs={
+    #         'class': 'input is-normal', 'readonly': 'readonly', 'disabled': 'disabled'
+    #     })
+    # )
 
     def __init__(self, *args, **kwargs):
         super(QuizProfileForm, self).__init__(*args, **kwargs)
-        self.fields['identity_code'].initial = self.instance.id
+        # self.fields['identity_code'].initial = self.instance.id
         self.fields['full_name'].initial = self.instance.user.first_name
         self.fields['department'].required = True
         # self.fields['branch'].required = True
@@ -47,14 +47,14 @@ class QuizProfileForm(forms.ModelForm):
 
     def clean_id_card(self):
         data = self.cleaned_data['id_card']
-        if len(data) < 9:
+        if len(data) < 3:
             raise ValidationError('Không hợp lệ')
         return data
 
     class Meta:
         model = Profile
         fields = (
-            'full_name', 'gender', 'identity_code', 'id_card', 
+            'full_name', 'gender', 'id_card', 'grade',
             'branch', 'dob', 'department', 'title'
         )
 
@@ -64,14 +64,15 @@ class QuizProfileForm(forms.ModelForm):
             'title': 'Chức danh',
             'dob': 'Ngày sinh',
             'id_card': 'Mã nhân viên',
-            'branch': 'Chi nhánh'
+            'branch': 'Chi nhánh',
+            'grade': 'Bậc thợ'
         }
 
         widgets = {
             'gender': forms.Select(attrs={'class': 'input is-normal'}),
             'department': forms.Select(attrs={'class': 'input is-normal'}),
             'title': forms.TextInput(attrs={'class': 'input is-normal'}),
-            'id_card': forms.TextInput(attrs={'class': 'input is-normal'}),
+            'id_card': forms.TextInput(attrs={'class': 'input is-normal', 'readonly': 'readonly'}),
             # 'branch': forms.Select(attrs={'class': 'input is-normal'}),
             'dob': forms.DateInput(attrs={'class': 'input is-normal'}),
         }

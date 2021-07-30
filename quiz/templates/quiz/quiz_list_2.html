@@ -5,17 +5,16 @@
 {% endblock %}
 
 {% block content %}
-<p class="title is-4 is-spaced">
-	Danh sách các kỳ thi sát hạch:
-</p>
+
 <div class="card">
 	<div class="card-content" style="min-height: 70vh;">
 		<table style="width: 100%;">
 			<thead>
 				<tr>
-					<th width="50%">Kỳ thi</th>
-					<th width="25%">Thời gian thi</th>
-					<th width="25%">Phân loại</th>
+					<th width="40%">Kỳ thi</th>
+					<th width="20%">Thời gian thi</th>
+					<th width="20%">Bậc thợ</th>
+					<th width="20%">Phòng ban</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -28,6 +27,7 @@
 						</td>
 					  	<td>{{ quiz.start|date:"d/m/Y" }} - {{ quiz.end|date:"d/m/Y" }}</td>
 					  	<td>{{ quiz.grade }}</td>
+					  	<td>{{ quiz.department }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

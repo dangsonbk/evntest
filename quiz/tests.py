@@ -15,7 +15,7 @@ from django.test import TestCase
 from django.utils.six import StringIO
 
 from .models import Grade, Quiz, Progress, Sitting
-from .views import (anon_session_score, QuizListView, CategoriesListView,
+from .views import (QuizListView, CategoriesListView,
                     QuizDetailView)
 
 from multichoice.models import MCQuestion, Answer
@@ -89,12 +89,6 @@ class TestQuiz(TestCase):
 
     def test_get_questions(self):
         self.assertIn(self.question1, self.quiz1.get_questions())
-
-    def test_anon_score_id(self):
-        self.assertEqual(self.quiz1.anon_score_id(), '1_score')
-
-    def test_anon_q_list(self):
-        self.assertEqual(self.quiz1.anon_q_list(), '1_q_list')
 
     def test_pass_mark(self):
         self.assertEqual(self.quiz1.pass_mark, False)
@@ -365,10 +359,6 @@ class TestNonQuestionViews(TestCase):
         self.assertContains(response, 'test quiz 1')
         self.assertNotContains(response, 'test quiz 2')
 
-    def test_progress_anon(self):
-        response = self.client.get('/progress/', follow=False)
-        self.assertTemplateNotUsed(response, 'progress.html')
-
     def test_progress_user(self):
         user = User.objects.create_user(username='jacob',
                                         email='jacob@jacob.com',
@@ -400,27 +390,6 @@ class TestNonQuestionViews(TestCase):
         self.assertContains(response, 'attempt')
         self.assertContains(response, 'href="/tq1/take/"')
         self.assertTemplateUsed(response, 'quiz/quiz_detail.html')
-
-    def test_anon_session_score(self):
-        request = HttpRequest()
-        engine = import_module(settings.SESSION_ENGINE)
-        request.session = engine.SessionStore(None)
-        score, possible = anon_session_score(request.session)
-        self.assertEqual((score, possible), (0, 0))
-
-        score, possible = anon_session_score(request.session, 1, 0)
-        self.assertEqual((score, possible), (0, 0))
-
-        score, possible = anon_session_score(request.session, 1, 1)
-        self.assertEqual((score, possible), (1, 1))
-
-        score, possible = anon_session_score(request.session, -0.5, 1)
-        self.assertEqual((score, possible), (0.5, 2))
-
-        score, possible = anon_session_score(request.session)
-        self.assertEqual((score, possible), (0.5, 2))
-
-
 class TestQuestionMarking(TestCase):
     urls = 'quiz.urls'
 
@@ -545,154 +514,6 @@ class TestQuestionMarking(TestCase):
 
         response = self.client.post('/marking/3/', {'qid': 3})
         self.assertNotContains(response, 'Correct')
-
-
-class TestQuestionViewsAnon(TestCase):
-    urls = 'quiz.urls'
-
-    def setUp(self):
-        self.c1 = Grade.objects.new_grade(grade='elderberries')
-
-        self.quiz1 = Quiz.objects.create(id=1,
-                                         title='test quiz 1',
-                                         description='d1',
-                                         url='tq1',
-                                         grade=self.c1)
-
-        self.question1 = MCQuestion.objects.create(id=1,
-                                                   content='squawk')
-        self.question1.quiz.add(self.quiz1)
-
-        self.question2 = MCQuestion.objects.create(id=2,
-                                                   content='squeek')
-        self.question2.quiz.add(self.quiz1)
-
-        self.answer1 = Answer.objects.create(id=123,
-                                             question=self.question1,
-                                             content='bing',
-                                             correct=False)
-
-        self.answer2 = Answer.objects.create(id=456,
-                                             question=self.question2,
-                                             content='bong',
-                                             correct=True)
-
-    def test_quiz_take_anon_view_only(self):
-        found = resolve('/tq1/take/')
-
-        self.assertEqual(found.kwargs, {'quiz_name': 'tq1'})
-        self.assertEqual(found.url_name, 'quiz_question')
-
-        response = self.client.get('/tq1/take/')
-
-        self.assertContains(response, 'squawk', status_code=200)
-        self.assertEqual(self.client.session.get_expiry_age(), 259200)
-        self.assertEqual(self.client.session['1_q_list'], [1, 2])
-        self.assertEqual(self.client.session['1_score'], 0)
-        self.assertEqual(response.context['quiz'].id, self.quiz1.id)
-        self.assertEqual(response.context['question'].content,
-                         self.question1.content)
-        self.assertNotIn('previous', response.context)
-        self.assertTemplateUsed('question.html')
-
-        session = self.client.session
-        session.set_expiry(1)  # session is set when user first starts a
-        session.save()         # quiz, not on subsequent visits
-
-        self.client.get('/tq1/take/')
-        self.assertEqual(self.client.session.get_expiry_age(), 1)
-        self.assertEqual(self.client.session['1_q_list'], [1, 2])
-        self.assertEqual(self.client.session['1_score'], 0)
-
-    def test_image_in_question(self):
-        imgfile = StringIO(
-            'GIF87a\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00ccc,'
-            '\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;')
-        imgfile.name = 'test_img_file.gif'
-
-        self.question1.figure.save('image', ContentFile(imgfile.read()))
-        response = self.client.get('/tq1/take/')
-
-        self.assertContains(response, '<img src=')
-        self.assertContains(response,
-                            'alt="' + str(self.question1.content))
-
-    def test_quiz_take_anon_submit(self):
-        # show first question
-        response = self.client.get('/tq1/take/')
-        self.assertNotContains(response, 'previous question')
-        # submit first answer
-        response = self.client.post('/tq1/take/',
-                                    {'answers': '123',
-                                     'question_id':
-                                     self.client.session['1_q_list'][0]})
-
-        self.assertContains(response, 'previous', status_code=200)
-        self.assertContains(response, 'incorrect')
-        self.assertContains(response, 'Explanation:')
-        self.assertContains(response, 'squeek')
-        self.assertEqual(self.client.session['1_q_list'], [2])
-        self.assertEqual(self.client.session['session_score'], 0)
-        self.assertEqual(self.client.session['session_score_possible'], 1)
-        self.assertEqual(response.context['previous']['question_type'],
-                         {self.question1.__class__.__name__: True})
-        self.assertIn(self.answer1, response.context['previous']['answers'])
-        self.assertTemplateUsed('question.html')
-        second_question = response.context['question']
-
-        # submit second and final answer of quiz, show final result page
-        response = self.client.post('/tq1/take/',
-                                    {'answers': '456',
-                                     'question_id':
-                                     self.client.session['1_q_list'][0]})
-
-        self.assertContains(response, 'previous question', status_code=200)
-        self.assertNotContains(response, 'incorrect')
-        self.assertContains(response, 'Explanation:')
-        self.assertContains(response, 'results')
-        self.assertNotIn('1_q_list', self.client.session)
-        self.assertEqual(response.context['score'], 1)
-        self.assertEqual(response.context['max_score'], 2)
-        self.assertEqual(response.context['percent'], 50)
-        self.assertEqual(response.context['session'], 1)
-        self.assertEqual(response.context['possible'], 2)
-        self.assertEqual(response.context['previous']['previous_answer'],
-                         '456')
-        self.assertEqual(response.context['previous']['previous_outcome'],
-                         True)
-        self.assertEqual(response.context['previous']['previous_question'],
-                         second_question)
-        self.assertTemplateUsed('result.html')
-
-        # quiz restarts
-        response = self.client.get('/tq1/take/')
-        self.assertNotContains(response, 'previous question')
-
-        # session score continues to increase
-        response = self.client.post('/tq1/take/',
-                                    {'answers': '123',
-                                     'question_id':
-                                     self.client.session['1_q_list'][0]})
-        self.assertEqual(self.client.session['session_score'], 1)
-        self.assertEqual(self.client.session['session_score_possible'], 3)
-
-    def test_anon_cannot_sit_single_attempt(self):
-        self.quiz1.single_attempt = True
-        self.quiz1.save()
-        response = self.client.get('/tq1/take/')
-
-        self.assertContains(response, 'accessible')
-        self.assertTemplateUsed('single_complete.html')
-
-    def test_anon_progress(self):
-        response = self.client.get('/tq1/take/')
-        self.assertEqual(response.context['progress'], (0, 2))
-        response = self.client.post('/tq1/take/',
-                                    {'answers': '123',
-                                     'question_id':
-                                     self.client.session['1_q_list'][0]})
-        self.assertEqual(response.context['progress'], (1, 2))
-
 
 class TestQuestionViewsUser(TestCase):
     urls = 'quiz.urls'
@@ -949,16 +770,6 @@ class TestTemplateTags(TestCase):
 
         self.sitting = Sitting.objects.new_sitting(self.user, self.quiz1)
         self.sitting.current_score = 1
-
-    def test_correct_answer_all_anon(self):
-        template = Template('{% load quiz_tags %}' +
-                            '{% correct_answer_for_all question %}')
-
-        context = Context({'question': self.question1})
-
-        self.assertTemplateUsed('correct_answer.html')
-        self.assertIn('bing', template.render(context))
-        self.assertNotIn('incorrectly', template.render(context))
 
     def test_correct_answer_all_user(self):
         template = Template('{% load quiz_tags %}' +

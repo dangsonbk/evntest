@@ -61,6 +61,7 @@ class Profile(models.Model):
     gender = models.CharField(verbose_name="Giới tính", max_length=1, choices=GENDER_CHOICES, default="0")
     department = models.ForeignKey(Department, null=True, verbose_name="Phòng ban", on_delete=models.CASCADE)
     title = models.CharField(verbose_name="Chức danh", max_length=512, null=True, blank=True)
+    grade = models.ForeignKey(Grade, null=True, blank=True, verbose_name="Bậc thợ", on_delete=models.CASCADE)
     dob = models.CharField(verbose_name="Ngày sinh", max_length=10, null=True, blank=True)
     id_card = models.CharField(max_length=12, null=True, blank=True)
     branch = models.ForeignKey(Branch, null=True, verbose_name="Chi nhánh", on_delete=models.CASCADE)
@@ -103,7 +104,8 @@ class ProfileUpload(models.Model):
                         'full_name': row[1].value,
                         'gender': row[3].value,
                         'department': _department[0],
-                        'title': "nhân viên",
+                        'title': "Nhân viên",
+                        'grade': "Bậc 1",
                         'dob': row[2].value,
                         'id_card':str(row[0].value),
                         'branch': self.branch
@@ -124,8 +126,10 @@ class Quiz(models.Model):
 
     title = models.CharField(verbose_name="Tên bài thi", max_length=60, blank=False)
     description = models.TextField(verbose_name="Chi tiết", blank=True, help_text="Thông tin bài thi")
-    url = models.SlugField(max_length=60, blank=False, help_text="Đường dẫn tới bài thi", verbose_name="Đường dẫn")
-    grade = models.ForeignKey(Grade, null=True, blank=True, verbose_name="Bậc thợ", on_delete=models.CASCADE)
+    url = models.SlugField(max_length=120, blank=False, help_text="Đường dẫn tới bài thi", verbose_name="Đường dẫn")
+    grade = models.ForeignKey(Grade, null=True, blank=True, verbose_name="Bậc thợ", on_delete=models.DO_NOTHING)
+    branch = models.ForeignKey(Branch, verbose_name="Chi nhánh", blank=True, null=True, on_delete=models.DO_NOTHING)
+    department = models.ForeignKey(Department, verbose_name="Phòng ban", blank=True, null=True, on_delete=models.DO_NOTHING)
     random_order = models.BooleanField(blank=False, default=False, verbose_name="Câu hỏi ngẫu nhiên", help_text="Sắp xếp câu hỏi ngẫu nhiên")
     max_questions = models.PositiveIntegerField(blank=True, null=True, verbose_name="Số câu hỏi", help_text="Số lượng câu hỏi tối đa.")
     answers_at_end = models.BooleanField(blank=False, default=False, help_text="Hiển thị kết quả sau khi nộp bài", verbose_name="Xem kết quả")
@@ -163,16 +167,6 @@ class Quiz(models.Model):
     @property
     def get_max_score(self):
         return self.get_questions().count()
-
-    def anon_score_id(self):
-        return str(self.id) + "_score"
-
-    def anon_q_list(self):
-        return str(self.id) + "_q_list"
-
-    def anon_q_data(self):
-        return str(self.id) + "_data"
-
 
 class ProgressManager(models.Manager):
 
@@ -309,7 +303,6 @@ class SittingManager(models.Manager):
 class Sitting(models.Model):
     """
     Used to store the progress of logged in users sitting a quiz.
-    Replaces the session system used by anon users.
     Question_order is a list of integer pks of all the questions in the
     quiz, in order.
     Question_list is a list of integers which represent id's of
@@ -467,9 +460,9 @@ class Question(models.Model):
     Shared properties placed here.
     """
     quiz = models.ManyToManyField(Quiz, verbose_name="Bộ đề", blank=True)
-    branch = models.ForeignKey(Branch, verbose_name="Chi nhánh", blank=True, null=True, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, verbose_name="Phòng ban", blank=True, null=True, on_delete=models.CASCADE)
-    grade = models.ForeignKey(Grade, verbose_name="Bậc thợ", blank=True, null=True, on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, verbose_name="Chi nhánh", blank=True, null=True, on_delete=models.DO_NOTHING)
+    department = models.ForeignKey(Department, verbose_name="Phòng ban", blank=True, null=True, on_delete=models.DO_NOTHING)
+    grade = models.ForeignKey(Grade, verbose_name="Bậc thợ", blank=True, null=True, on_delete=models.DO_NOTHING)
     figure = models.ImageField(upload_to='uploads/%Y/%m/%d', blank=True, null=True, verbose_name="Hình vẽ")
     content = models.CharField(max_length=1000, blank=False, help_text="Nội dung câu hỏi", verbose_name='Nội dung')
     explanation = models.TextField(max_length=2000, blank=True, help_text="Giải thích đáp án (chỉ hiện thị khi thí sinh làm bài xong)", verbose_name='Giải thích')
