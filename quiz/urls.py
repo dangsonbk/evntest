@@ -8,9 +8,7 @@ from . import views
 urlpatterns = [
 
     url(r'^$', view=views.QuizListView.as_view(),name='quiz_index'),
-    # url(r'^profile/', view=views.quizUserProfile(), name='quiz_user_profile'),
     url(r'^profile/(?P<pk>\d+)/$', view=views.QuizProfileView.as_view(), name='quiz_profile'),
-    url(r'^quiz-question/$', view=views.QuizDetailExampleView, name='quiz_question'),
     url(r'^quiz-welcome/$', view=views.QuizWelcomeView, name='quiz_welcome'),
     url(r'^grade/$', view=views.CategoriesListView.as_view(), name='quiz_grade_list_all'),
     url(r'^grade/(?P<grade_name>[\w|\W-]+)/$', view=views.ViewQuizListByGrade.as_view(), name='quiz_grade_list_matching'),

@@ -104,7 +104,7 @@ class Upload(models.Model):
                     ques = None
                     ques, created = MCQuestion.objects.get_or_create(grade=self.grade, department=self.department, branch=self.branch, content=question["question"])
                     ques.quiz.add(quiz)
-                    if not created:
+                    if created:
                         for choice in question["multichoices"]:
                             answer = Answer.objects.create( question=ques, content=question["multichoices"][choice], correct=(question["answer"] == choice))
             print(question_list)

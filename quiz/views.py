@@ -21,11 +21,6 @@ class CustomLoginView(views.LoginView):
         auth_login(self.request, user)
         return redirect(reverse('quiz_index'))
 
-# TMP View for dev tempplate
-def QuizDetailExampleView(request):
-    ctx = {'total_question': range(50)}
-    return render(request=request, template_name="quiz/detail.html", context=ctx)
-
 def QuizWelcomeView(request):
     return render(request=request, template_name="quiz/quiz_welcome.html")
 
@@ -66,6 +61,7 @@ class QuizListView(ListView):
     template_name = 'quiz/quiz_list_2.html'
 
     def get_queryset(self):
+
         queryset = super(QuizListView, self).get_queryset()
         queryset = queryset.filter(draft=False)
         profile = Profile.objects.get(user=self.request.user)
@@ -84,9 +80,11 @@ class QuizDetailView(DetailView):
             raise PermissionDenied
 
         context = self.get_context_data(object=self.object)
-        if not context['quiz'] or not context['quiz'].grade:
+        print(context)
+        if not context['quiz']:
             return redirect(reverse('quiz_index'))
-        profile = Profile.objects.get(user=self.request.user)
+        else:
+            print("Quiz error")
 
         return self.render_to_response(context)
 
@@ -105,12 +103,10 @@ class ViewQuizListByGrade(ListView):
             grade=self.kwargs['grade_name']
         )
 
-        return super(ViewQuizListByGrade, self).\
-            dispatch(request, *args, **kwargs)
+        return super(ViewQuizListByGrade, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(ViewQuizListByGrade, self)\
-            .get_context_data(**kwargs)
+        context = super(ViewQuizListByGrade, self).get_context_data(**kwargs)
 
         context['grade'] = self.grade
         return context
@@ -237,7 +233,6 @@ class QuizTake(FormView):
                 return self.final_result_anon()
 
         self.request.POST = {}
-
         return super(QuizTake, self).get(self, self.request)
 
     def get_context_data(self, **kwargs):
@@ -245,7 +240,7 @@ class QuizTake(FormView):
         context['question'] = self.question
         context['quiz'] = self.quiz
         
-        if not context['quiz'] or not context['quiz'].grade:
+        if not context['quiz']:
             return redirect(reverse('quiz_index'))
 
         sid = f'tf-{self.quiz.id}'
@@ -271,6 +266,7 @@ class QuizTake(FormView):
         else:
             answered = json.loads(self.request.session[sid])
         context['answered'] = answered
+        print(answered)
 
         if hasattr(self, 'previous'):
             context['previous'] = self.previous
@@ -395,7 +391,7 @@ class QuizTake(FormView):
         max_score = len(q_order)
         percent = int(round((float(score) / max_score) * 100))
         session, session_possible = anon_session_score(self.request.session)
-        if score is 0:
+        if score == 0:
             score = "0"
 
         results = {
