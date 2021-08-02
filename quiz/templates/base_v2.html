@@ -50,9 +50,6 @@
                 <div class="card">
                     <div class="card-content" style="min-height: 70vh;">
                         <p class="title is-4 is-spaced">
-                            <span class="icon">
-                                <i class="fas fa-user-circle"></i>
-                            </span>
                             {{ user_info.user.first_name }}
                             <span class="icon is-pulled-right">
                                 <a href="{% url 'quiz_profile' pk=user_info.id %}">

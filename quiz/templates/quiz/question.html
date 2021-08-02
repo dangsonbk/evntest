@@ -39,7 +39,9 @@
             </div>
             <footer class="card-footer">
                 <div class="card-footer-item has-text-centered">
-                    <input type="submit" value="Câu trước" class="button is-info is-outlined mr-4" >
+                    {% if previous != 'None' %}
+                    <a class="button is-info is-outlined mr-4" href="/{{ quiz.url }}/take/{{ previous_id }}">Câu trước</a>
+                    {% endif %}
                     <input type="submit" value="Trả lời" class="button is-info mr-4" >
                     <input type="submit" value="Nộp bài" class="button is-warning mr-4" >
                 </div>
@@ -50,7 +52,7 @@
     <div class="column is-one-quarter pt-0 questions">
         <div class="card">
             <div class="card-content" style="min-height: 70vh;">
-                {% for ques in sitting %}
+                {% for ques in questions %}
                     {% if forloop.counter == 1 %}
                         <div class="buttons mb-1">
                     {% endif %}

@@ -339,10 +339,25 @@ class Sitting(models.Model):
 
     def get_next_question_id(self, question_id):
         question_list = self.question_order.split(',')
+        if not question_id:
+            question_id = question_list[0]
         if question_id in question_list:
             idx = question_list.index(question_id)
             if idx < len(question_list) - 2:
                 return question_list[idx + 1]
+            else:
+                return question_list[0]
+        else:
+            return question_list[0]
+
+    def get_previous_question_id(self, question_id):
+        question_list = self.question_order.split(',')
+        if not question_id:
+            return None
+        if question_id in question_list:
+            idx = question_list.index(question_id)
+            if idx > 0:
+                return question_list[idx - 1]
             else:
                 return None
         else:

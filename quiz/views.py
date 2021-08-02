@@ -195,8 +195,9 @@ class QuizTake(FormView):
         context['question'] = self.question
         context['answer'] = self.answer
         context['quiz'] = self.quiz
-        context['sitting'] = map(int, self.sitting.question_order[:-1].split(","))
+        context['questions'] = map(int, self.sitting.question_order[:-1].split(","))
         context['answered'] = list(map(int, json.loads(self.sitting.user_answers).keys()))
+        context['previous_id'] = self.sitting.get_previous_question_id(self.question_number)
 
         if not context['quiz']:
             return redirect(reverse('quiz_index'))
