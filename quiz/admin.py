@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from .models import Quiz, Grade, Progress, Question, Profile, ProfileUpload, Department, Branch
+from .models import Quiz, Grade, Progress, Question, Profile, ProfileUpload, Department, Branch, Sitting
 from multichoice.models import MCQuestion, Answer, Upload
 from true_false.models import TF_Question
 from essay.models import Essay_Question
@@ -78,6 +78,7 @@ admin.site.register(Quiz, QuizAdmin)
 admin.site.register(Grade, GradeAdmin)
 admin.site.register(MCQuestion, MCQuestionAdmin)
 admin.site.register(Upload)
+admin.site.register(Sitting)
 admin.site.register(ProfileUpload)
 admin.site.register(Department)
 admin.site.register(Branch)

@@ -15,8 +15,7 @@ from django.test import TestCase
 from django.utils.six import StringIO
 
 from .models import Grade, Quiz, Progress, Sitting
-from .views import (QuizListView, CategoriesListView,
-                    QuizDetailView)
+from .views import (QuizListView, QuizDetailView)
 
 from multichoice.models import MCQuestion, Answer
 from true_false.models import TF_Question
@@ -207,20 +206,6 @@ class TestSitting(TestCase):
 
         self.assertNotIn('2', sub_sitting.question_list)
 
-    def test_get_next_remove_first(self):
-        self.assertEqual(self.sitting.get_first_question(),
-                         self.question1)
-
-        self.sitting.remove_first_question()
-        self.assertEqual(self.sitting.get_first_question(),
-                         self.question2)
-
-        self.sitting.remove_first_question()
-        self.assertEqual(self.sitting.get_first_question(), False)
-
-        self.sitting.remove_first_question()
-        self.assertEqual(self.sitting.get_first_question(), False)
-
     def test_scoring(self):
         self.assertEqual(self.sitting.get_current_score, 0)
         self.assertEqual(self.sitting.check_if_passed, False)
@@ -335,29 +320,6 @@ class TestNonQuestionViews(TestCase):
 
         view = QuizListView()
         self.assertEqual(view.get_queryset().count(), 2)
-
-    def test_list_categories(self):
-        # unit
-        view = CategoriesListView()
-        self.assertEqual(view.get_queryset().count(), 3)
-
-        # integration test
-        response = self.client.get('/grade/')
-
-        self.assertContains(response, 'elderberries')
-        self.assertContains(response, 'straw.berries')
-        self.assertContains(response, 'black-berries')
-
-    def test_view_cat(self):
-        # unit
-        view = CategoriesListView()
-        self.assertEqual(view.get_queryset().count(), 3)
-
-        # integration test
-        response = self.client.get('/grade/elderberries/')
-
-        self.assertContains(response, 'test quiz 1')
-        self.assertNotContains(response, 'test quiz 2')
 
     def test_progress_user(self):
         user = User.objects.create_user(username='jacob',
@@ -600,47 +562,6 @@ class TestQuestionViewsUser(TestCase):
         response = self.client.get('/tq1/take/')
         sitting = Sitting.objects.filter(quiz=self.quiz1)[0]
         self.assertEqual(sitting.question_list, '1,2,')
-
-    def test_quiz_take_user_submit(self):
-        self.client.login(username='jacob', password='top_secret')
-        response = self.client.get('/tq1/take/')
-        progress_count = Progress.objects.count()
-
-        self.assertNotContains(response, 'previous question')
-        self.assertEqual(progress_count, 0)
-
-        next_question = Sitting.objects.get(quiz=self.quiz1)\
-                                       .get_first_question()
-
-        response = self.client.post('/tq1/take/',
-                                    {'answers': '123',
-                                     'question_id':
-                                     next_question.id})
-
-        sitting = Sitting.objects.get(quiz=self.quiz1)
-        progress_count = Progress.objects.count()
-        progress = Progress.objects.get(user=sitting.user).list_all_cat_scores
-
-        self.assertContains(response, 'previous question', status_code=200)
-        self.assertEqual(sitting.current_score, 0)
-        self.assertEqual(sitting.incorrect_questions, '1,')
-        self.assertEqual(sitting.complete, False)
-        self.assertEqual(progress_count, 1)
-        self.assertIn(self.c1.grade, progress)
-        self.assertEqual(sitting.question_list, '2,')
-        self.assertIn('123', response.context['previous']['previous_answer'])
-        self.assertEqual(response.context['question'].content,
-                         self.question2.content)
-        self.assertTemplateUsed('question.html')
-
-        response = self.client.post('/tq1/take/',
-                                    {'answers': '456',
-                                     'question_id': 2})
-
-        self.assertEqual(Sitting.objects.count(), 0)
-        self.assertTemplateUsed('result.html')
-        self.assertEqual(response.context['score'], 1)
-        self.assertContains(response, 'You have passed')
 
     def test_quiz_take_user_answer_end(self):
         self.client.login(username='jacob', password='top_secret')

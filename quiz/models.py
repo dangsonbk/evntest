@@ -314,10 +314,10 @@ class Sitting(models.Model):
     """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="Thí sinh", on_delete=models.CASCADE)
-    quiz = models.ForeignKey(Quiz, verbose_name="Quiz", on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, verbose_name="Bộ đề", on_delete=models.CASCADE)
     question_order = models.CharField(max_length=1024, verbose_name="Thứ tự câu hỏi", validators=[validate_comma_separated_integer_list])
     question_list = models.CharField(max_length=1024, verbose_name="Danh sách câu hỏi", validators=[validate_comma_separated_integer_list])
-    incorrect_questions = models.CharField(max_length=1024, blank=True, verbose_name="Câu hỏi sai", validators=[validate_comma_separated_integer_list])
+    incorrect_questions = models.CharField(max_length=1024, blank=True, verbose_name="Câu trả lời sai", validators=[validate_comma_separated_integer_list])
     current_score = models.IntegerField(verbose_name="Điểm hiện tại")
     complete = models.BooleanField(default=False, blank=False,verbose_name="Hoàn thành")
     user_answers = models.TextField(blank=True, default='{}',verbose_name="Câu trả lời của thí sinh")
@@ -328,26 +328,25 @@ class Sitting(models.Model):
     class Meta:
         permissions = (("view_sittings", "Có thể xem toàn bộ bài thi."),)
 
-    def get_first_question(self):
-        """
-        Returns the next question.
-        If no question is found, returns False
-        Does NOT remove the question from the front of the list.
-        """
-        if not self.question_list:
-            return False
+    def get_question(self, question_id=None):
+        if question_id == None:
+            question_id, _ = self.question_order.split(',', 1)
+        answered = json.loads(self.user_answers)
+        if str(question_id) in answered:
+            return Question.objects.get_subclass(id=question_id), answered[str(question_id)]
+        else:
+            return Question.objects.get_subclass(id=question_id), None
 
-        first, _ = self.question_list.split(',', 1)
-        question_id = int(first)
-        return Question.objects.get_subclass(id=question_id)
-
-    def remove_first_question(self):
-        if not self.question_list:
-            return
-
-        _, others = self.question_list.split(',', 1)
-        self.question_list = others
-        self.save()
+    def get_next_question_id(self, question_id):
+        question_list = self.question_order.split(',')
+        if question_id in question_list:
+            idx = question_list.index(question_id)
+            if idx < len(question_list) - 2:
+                return question_list[idx + 1]
+            else:
+                return None
+        else:
+            return None
 
     def add_to_score(self, points):
         self.current_score += int(points)
@@ -422,7 +421,7 @@ class Sitting(models.Model):
 
     def add_user_answer(self, question, guess):
         current = json.loads(self.user_answers)
-        current[question.id] = guess
+        current[str(question.id)] = guess
         self.user_answers = json.dumps(current)
         self.save()
 
@@ -444,16 +443,6 @@ class Sitting(models.Model):
     @property
     def get_max_score(self):
         return len(self._question_ids())
-
-    def progress(self):
-        """
-        Returns the number of questions answered so far and the total number of questions.
-        """
-        answered = len(json.loads(self.user_answers))
-        total = self.get_max_score
-        return answered, total
-
-
 class Question(models.Model):
     """
     Base class for all question types.

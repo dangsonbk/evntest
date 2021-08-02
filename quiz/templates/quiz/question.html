@@ -39,7 +39,9 @@
             </div>
             <footer class="card-footer">
                 <div class="card-footer-item has-text-centered">
-                    <input type="submit" value="Tiếp theo" class="button is-info mr-4" >
+                    <input type="submit" value="Câu trước" class="button is-info is-outlined mr-4" >
+                    <input type="submit" value="Trả lời" class="button is-info mr-4" >
+                    <input type="submit" value="Nộp bài" class="button is-warning mr-4" >
                 </div>
             </footer>
         </div>
@@ -48,28 +50,25 @@
     <div class="column is-one-quarter pt-0 questions">
         <div class="card">
             <div class="card-content" style="min-height: 70vh;">
-<!--                <button class="button is-info">-->
-<!--                    <span>{{ question.id }} / {{ quiz.question_set.all|length }}</span>-->
-<!--                </button>-->
-                {% for ques in quiz.question_set.all %}
+                {% for ques in sitting %}
                     {% if forloop.counter == 1 %}
                         <div class="buttons mb-1">
                     {% endif %}
-                            {% if ques.id in answered %}
-                                <button class="button is-info">
-                            {% elif ques.id == question.id %}
+                            {% if ques == question.id %}
                                 <button class="button is-warning">
+                            {% elif ques in answered %}
+                                <button class="button is-info">
                             {% else %}
                                 <button class="button is-light">
                             {% endif %}
 
-                            <span>{{ forloop.counter }}</span>
+                            <a href="/{{ quiz.url }}/take/{{ ques }}">{{ forloop.counter }}</a>
                         </button>
                     {% if forloop.counter|divisibleby:4 %}
                         </div>
                         <div class="buttons mb-1">
                     {% endif %}
-                    {% if forloop.counter == quiz.question_set.all|length %}
+                    {% if forloop.counter == quiz.max_questions %}
                         </div>
                     {% endif %}
                 {% endfor %}

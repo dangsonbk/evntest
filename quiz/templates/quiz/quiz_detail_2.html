@@ -12,7 +12,7 @@
 	<div class="card-content" style="min-height: 70vh;">
 		<div>
             <p><b>Thời gian hoàn thành thi:</b> 01/01/2021 ~ 31/12/2021</p>
-            <p><b>Tiến trình:</b> 0/{{ quiz.question_set.all|length }}</p>
+            <p><b>Tiến trình:</b> 0/{{ quiz.max_questions }}</p>
             <p><b>Thời lượng:</b> {{ quiz.duration }} phút</p>
             <p><b>Thời lượng còn lại:</b> {{ quiz.duration }} phút</p>
         </div>

@@ -58,7 +58,7 @@ class SittingFilterTitleMixin(object):
 
 class QuizListView(ListView):
     model = Quiz
-    template_name = 'quiz/quiz_list_2.html'
+    template_name = 'quiz/quiz_list.html'
 
     def get_queryset(self):
 
@@ -84,40 +84,10 @@ class QuizDetailView(DetailView):
             raise PermissionDenied
 
         context = self.get_context_data(object=self.object)
-        print(context)
         if not context['quiz']:
             return redirect(reverse('quiz_index'))
-        else:
-            print("Quiz error")
 
         return self.render_to_response(context)
-
-
-class CategoriesListView(ListView):
-    model = Grade
-
-
-class ViewQuizListByGrade(ListView):
-    model = Quiz
-    template_name = 'view_quiz_grade.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.grade = get_object_or_404(
-            Grade,
-            grade=self.kwargs['grade_name']
-        )
-
-        return super(ViewQuizListByGrade, self).dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(ViewQuizListByGrade, self).get_context_data(**kwargs)
-
-        context['grade'] = self.grade
-        return context
-
-    def get_queryset(self):
-        queryset = super(ViewQuizListByGrade, self).get_queryset()
-        return queryset.filter(grade=self.grade, draft=False)
 
 class QuizUserProgressView(TemplateView):
     template_name = 'progress.html'
@@ -177,7 +147,7 @@ class QuizTake(FormView):
     login_request_template_name = 'login.html'
 
     def dispatch(self, request, *args, **kwargs):
-        cats = Profile.objects.get(user=self.request.user).department
+        self.quizurl = self.kwargs['quiz_name']
         self.quiz = get_object_or_404(Quiz, url=self.kwargs['quiz_name'])
         if self.quiz.draft and not request.user.has_perm('quiz.change_quiz'):
             raise PermissionDenied
@@ -192,48 +162,42 @@ class QuizTake(FormView):
         else:
             return render(request, self.login_request_template_name)
 
+        if "question_number" in kwargs:
+            self.question_number = self.kwargs['question_number']
+        else:
+            self.question_number = None
+
         if self.sitting is False:
             return render(request, self.single_complete_template_name)
         return super(QuizTake, self).dispatch(request, *args, **kwargs)
 
     def get_form(self, *args, **kwargs):
-        self.question = self.sitting.get_first_question()
-        self.progress = self.sitting.progress()
-
+        self.question, self.answer = self.sitting.get_question(self.question_number)
         if self.question.__class__ is Essay_Question:
             form_class = EssayForm
         else:
             form_class = self.form_class
-
         return form_class(**self.get_form_kwargs())
 
     def get_form_kwargs(self):
         kwargs = super(QuizTake, self).get_form_kwargs()
 
-        return dict(kwargs, question=self.question)
+        return dict(kwargs, question=self.question, initial={"answers": self.answer})
 
     def form_valid(self, form):
-        # Lưu vào session câu hỏi đã trả lời
-        sid = f'uid-{self.request.user.id}-quiz-{self.quiz.id}-answered'
-        if sid not in self.request.session:
-            answered = [self.question.id]
-        else:
-            answered = json.loads(self.request.session[sid])
-            answered.append(self.question.id)
-        self.request.session[sid] = json.dumps(answered)
-
-        self.form_valid_user(form)
-        if self.sitting.get_first_question() is False:
-            return self.final_result_user()
-
+        guess = form.cleaned_data['answers']
+        self.sitting.add_user_answer(self.question, guess)
         self.request.POST = {}
-        return super(QuizTake, self).get(self, self.request)
+        return redirect("/{}/take/{}".format(self.quizurl, self.sitting.get_next_question_id(self.question_number)))
 
     def get_context_data(self, **kwargs):
         context = super(QuizTake, self).get_context_data(**kwargs)
         context['question'] = self.question
+        context['answer'] = self.answer
         context['quiz'] = self.quiz
-        
+        context['sitting'] = map(int, self.sitting.question_order[:-1].split(","))
+        context['answered'] = list(map(int, json.loads(self.sitting.user_answers).keys()))
+
         if not context['quiz']:
             return redirect(reverse('quiz_index'))
 
@@ -253,48 +217,10 @@ class QuizTake(FormView):
             context['time_left_f'] = 'Hết giờ'
         else:
             context['time_left_f'] = datetime.timedelta(seconds=time_left)
-
-        sid = f'uid-{self.request.user.id}-quiz-{self.quiz.id}-answered'
-        if sid not in self.request.session:
-            answered = []
-        else:
-            answered = json.loads(self.request.session[sid])
-        context['answered'] = answered
-        print(answered)
-
-        if hasattr(self, 'previous'):
-            context['previous'] = self.previous
-        if hasattr(self, 'progress'):
-            context['progress'] = self.progress
         return context
 
-    def form_valid_user(self, form):
-        progress, c = Progress.objects.get_or_create(user=self.request.user)
-        guess = form.cleaned_data['answers']
-        is_correct = self.question.check_if_correct(guess)
-
-        if is_correct is True:
-            self.sitting.add_to_score(1)
-            progress.update_score(self.question, 1, 1)
-        else:
-            self.sitting.add_incorrect_question(self.question)
-            progress.update_score(self.question, 0, 1)
-
-        if self.quiz.answers_at_end is not True:
-            self.previous = {'previous_answer': guess,
-                             'previous_outcome': is_correct,
-                             'previous_question': self.question,
-                             'answers': self.question.get_answers(),
-                             'question_type': {self.question
-                                               .__class__.__name__: True}}
-        else:
-            self.previous = {}
-
-        self.sitting.add_user_answer(self.question, guess)
-        self.sitting.remove_first_question()
-
     def final_result_user(self):
-        results = { 'quiz': self.quiz, 'score': self.sitting.get_current_score,'max_score': self.sitting.get_max_score,'percent': self.sitting.get_percent_correct,'sitting': self.sitting,'previous': self.previous,}
+        results = { 'quiz': self.quiz, 'score': self.sitting.get_current_score,'max_score': self.sitting.get_max_score,'percent': self.sitting.get_percent_correct,'sitting': self.sitting,}
         self.sitting.mark_quiz_complete()
 
         if self.quiz.answers_at_end:
