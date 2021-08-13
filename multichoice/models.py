@@ -60,7 +60,7 @@ class Upload(models.Model):
     quiz_file = models.FileField(upload_to='quiz')
     grade = models.ForeignKey(Grade, verbose_name="Bậc thợ", null=True, blank=True, on_delete=models.DO_NOTHING)
     department = models.ForeignKey(Department, verbose_name="Phòng ban", null=True, blank=True, on_delete=models.DO_NOTHING)
-    branch = models.ForeignKey(Branch, verbose_name="Chi nhánh", null=True, blank=True, on_delete=models.DO_NOTHING)
+    branch = models.ForeignKey(Branch, verbose_name="Công ty", null=True, blank=True, on_delete=models.DO_NOTHING)
     imported = models.BooleanField(default=False, verbose_name="Đã nạp câu hỏi")
     def save(self, *args, **kwargs):
         self.imported = True

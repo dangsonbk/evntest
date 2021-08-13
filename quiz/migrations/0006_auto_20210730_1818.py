@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='quiz',
             name='branch',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='quiz.Branch', verbose_name='Chi nhánh'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='quiz.Branch', verbose_name='Công ty'),
         ),
         migrations.AddField(
             model_name='quiz',
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='question',
             name='branch',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='quiz.Branch', verbose_name='Chi nhánh'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='quiz.Branch', verbose_name='Công ty'),
         ),
         migrations.AlterField(
             model_name='question',

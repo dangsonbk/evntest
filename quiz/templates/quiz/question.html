@@ -1,4 +1,4 @@
-{% extends "base_v2.html" %}
+{% extends "base_taking.html" %}
 {% load static %}
 {% load i18n%}
 {% load quiz_tags %}
@@ -8,9 +8,6 @@
 
 {% block content %}
 <div style="width: 100%; display:inline-block;">
-    <p class="title is-4 is-spaced is-pulled-left">
-        {{ quiz.title }}
-    </p>
     <p class="is-pulled-right">
         Thời gian còn lại: <b id="countdown">{{ time_left_f }}</b>
     </p>

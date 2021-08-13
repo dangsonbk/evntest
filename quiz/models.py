@@ -48,12 +48,12 @@ class Department(models.Model):
         verbose_name_plural = "Phòng ban"
 
 class Branch(models.Model):
-    branch = models.CharField(verbose_name="Chi nhánh", max_length=512, null=True, blank=True)
+    branch = models.CharField(verbose_name="Công ty", max_length=512, null=True, blank=True)
     def __str__(self) -> str:
         return self.branch
     class Meta:
-        verbose_name = "Chi nhánh"
-        verbose_name_plural = "Chi nhánh"
+        verbose_name = "Công ty"
+        verbose_name_plural = "Công ty"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -64,7 +64,7 @@ class Profile(models.Model):
     grade = models.ForeignKey(Grade, null=True, blank=True, verbose_name="Bậc thợ", on_delete=models.CASCADE)
     dob = models.CharField(verbose_name="Ngày sinh", max_length=10, null=True, blank=True)
     id_card = models.CharField(max_length=12, null=True, blank=True)
-    branch = models.ForeignKey(Branch, null=True, verbose_name="Chi nhánh", on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, null=True, verbose_name="Công ty", on_delete=models.CASCADE)
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
@@ -84,7 +84,7 @@ class Profile(models.Model):
 
 class ProfileUpload(models.Model):
     profile_file = models.FileField(upload_to='profile_list')
-    branch = models.ForeignKey(Branch, null=True, verbose_name="Chi nhánh", on_delete=models.DO_NOTHING)
+    branch = models.ForeignKey(Branch, null=True, verbose_name="Công ty", on_delete=models.DO_NOTHING)
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.import_worksheet()
@@ -128,7 +128,7 @@ class Quiz(models.Model):
     description = models.TextField(verbose_name="Chi tiết", blank=True, help_text="Thông tin bài thi")
     url = models.SlugField(max_length=120, blank=False, help_text="Đường dẫn tới bài thi", verbose_name="Đường dẫn")
     grade = models.ForeignKey(Grade, null=True, blank=True, verbose_name="Bậc thợ", on_delete=models.DO_NOTHING)
-    branch = models.ForeignKey(Branch, verbose_name="Chi nhánh", blank=True, null=True, on_delete=models.DO_NOTHING)
+    branch = models.ForeignKey(Branch, verbose_name="Công ty", blank=True, null=True, on_delete=models.DO_NOTHING)
     department = models.ForeignKey(Department, verbose_name="Phòng ban", blank=True, null=True, on_delete=models.DO_NOTHING)
     random_order = models.BooleanField(blank=False, default=False, verbose_name="Câu hỏi ngẫu nhiên", help_text="Sắp xếp câu hỏi ngẫu nhiên")
     max_questions = models.PositiveIntegerField(blank=True, null=True, verbose_name="Số câu hỏi", help_text="Số lượng câu hỏi tối đa.")
@@ -464,7 +464,7 @@ class Question(models.Model):
     Shared properties placed here.
     """
     quiz = models.ManyToManyField(Quiz, verbose_name="Bộ đề", blank=True)
-    branch = models.ForeignKey(Branch, verbose_name="Chi nhánh", blank=True, null=True, on_delete=models.DO_NOTHING)
+    branch = models.ForeignKey(Branch, verbose_name="Công ty", blank=True, null=True, on_delete=models.DO_NOTHING)
     department = models.ForeignKey(Department, verbose_name="Phòng ban", blank=True, null=True, on_delete=models.DO_NOTHING)
     grade = models.ForeignKey(Grade, verbose_name="Bậc thợ", blank=True, null=True, on_delete=models.DO_NOTHING)
     figure = models.ImageField(upload_to='uploads/%Y/%m/%d', blank=True, null=True, verbose_name="Hình vẽ")

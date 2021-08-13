@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='upload',
             name='branch',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='quiz.Branch', verbose_name='Chi nhánh'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='quiz.Branch', verbose_name='Công ty'),
         ),
         migrations.AddField(
             model_name='upload',

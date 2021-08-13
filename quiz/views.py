@@ -37,9 +37,6 @@ class QuizProfileView(UpdateView):
         user_obj.save()
         return redirect_url
 
-        return super().form_valid(form)
-
-
 class QuizMarkerMixin(object):
     @method_decorator(permission_required('quiz.view_sittings'))
     def dispatch(self, *args, **kwargs):
@@ -61,7 +58,6 @@ class QuizListView(ListView):
     template_name = 'quiz/quiz_list.html'
 
     def get_queryset(self):
-
         queryset = super(QuizListView, self).get_queryset()
         queryset = queryset.filter(draft=False)
         profile = Profile.objects.get(user=self.request.user)
@@ -72,10 +68,15 @@ class QuizListView(ListView):
             queryset = queryset.filter(grade=grade, department=depart, branch=branch)
         return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['main_header'] = "Danh sách bài thi"
+        return context
+
 class QuizDetailView(DetailView):
     model = Quiz
     slug_field = 'url'
-    template_name = 'quiz/quiz_detail_2.html'
+    template_name = 'quiz/quiz_detail.html'
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -86,6 +87,7 @@ class QuizDetailView(DetailView):
         context = self.get_context_data(object=self.object)
         if not context['quiz']:
             return redirect(reverse('quiz_index'))
+        context['main_header'] = "Thông tin bài thi"
 
         return self.render_to_response(context)
 
@@ -195,6 +197,7 @@ class QuizTake(FormView):
         context['question'] = self.question
         context['answer'] = self.answer
         context['quiz'] = self.quiz
+        context['main_header'] = self.quiz
         context['questions'] = map(int, self.sitting.question_order[:-1].split(","))
         context['answered'] = list(map(int, json.loads(self.sitting.user_answers).keys()))
         context['previous_id'] = self.sitting.get_previous_question_id(self.question_number)

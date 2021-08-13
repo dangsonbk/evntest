@@ -1,37 +1,37 @@
-{% extends 'base_v2.html' %}
+{% extends 'base.html' %}
 {% load i18n %}
 {% block title %}
-	Danh sách các kỳ thi sát hạch
+    Danh sách các kỳ thi sát hạch
 {% endblock %}
 
 {% block content %}
 
 <div class="card">
-	<div class="card-content" style="min-height: 70vh;">
-		<table style="width: 100%;">
-			<thead>
-				<tr>
-					<th width="40%">Kỳ thi</th>
-					<th width="20%">Thời gian thi</th>
-					<th width="20%">Bậc thợ</th>
-					<th width="20%">Phòng ban</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for quiz in quiz_list %}
-					<tr>
-					  	<td>
-							<a href="{% url 'quiz_start_page' slug=quiz.url %}">
-								{{ quiz.title }}
-							</a>
-						</td>
-					  	<td>{{ quiz.start|date:"d/m/Y" }} - {{ quiz.end|date:"d/m/Y" }}</td>
-					  	<td>{{ quiz.grade }}</td>
-					  	<td>{{ quiz.department }}</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="card-content" style="min-height: 70vh;">
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th width="40%">Kỳ thi</th>
+                    <th width="20%">Thời gian thi</th>
+                    <th width="20%">Bậc thợ</th>
+                    <th width="20%">Phòng ban</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quiz in quiz_list %}
+                    <tr>
+                          <td>
+                            <a href="{% url 'quiz_start_page' slug=quiz.url %}">
+                                {{ quiz.title }}
+                            </a>
+                        </td>
+                          <td>{{ quiz.start|date:"d/m/Y" }} - {{ quiz.end|date:"d/m/Y" }}</td>
+                          <td>{{ quiz.grade }}</td>
+                          <td>{{ quiz.department }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

@@ -59,18 +59,19 @@ class QuizProfileForm(forms.ModelForm):
         labels = {
             'gender': 'Giới tính',
             'department': 'Phòng ban',
-            'title': 'Chức danh',
+            'grade': 'Bậc thợ',
             'dob': 'Ngày sinh',
             'id_card': 'Mã nhân viên',
-            'branch': 'Chi nhánh',
-            'grade': 'Bậc thợ'
+            'branch': 'Công ty',
+            'title': 'Chức danh'
         }
 
         widgets = {
             'gender': forms.Select(attrs={'class': 'input is-normal'}),
             'department': forms.Select(attrs={'class': 'input is-normal'}),
-            'title': forms.TextInput(attrs={'class': 'input is-normal'}),
             'id_card': forms.TextInput(attrs={'class': 'input is-normal', 'readonly': 'readonly'}),
+            'grade': forms.TextInput(attrs={'class': 'input is-normal'}),
+            'title': forms.TextInput(attrs={'class': 'input is-normal'}),
             # 'branch': forms.Select(attrs={'class': 'input is-normal'}),
             'dob': forms.DateInput(attrs={'class': 'input is-normal'}),
         }

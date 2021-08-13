@@ -20,11 +20,11 @@ class Migration(migrations.Migration):
             name='Branch',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('branch', models.CharField(blank=True, max_length=512, null=True, verbose_name='Chi nhánh')),
+                ('branch', models.CharField(blank=True, max_length=512, null=True, verbose_name='Công ty')),
             ],
             options={
-                'verbose_name': 'Chi nhánh',
-                'verbose_name_plural': 'Chi nhánh',
+                'verbose_name': 'Công ty',
+                'verbose_name_plural': 'Công ty',
             },
         ),
         migrations.CreateModel(
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(blank=True, max_length=512, null=True, verbose_name='Chức danh')),
                 ('dob', models.CharField(blank=True, max_length=10, null=True, verbose_name='Ngày sinh')),
                 ('id_card', models.CharField(blank=True, max_length=12, null=True)),
-                ('branch', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='quiz.Branch', verbose_name='Chi nhánh')),
+                ('branch', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='quiz.Branch', verbose_name='Công ty')),
                 ('department', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='quiz.Department', verbose_name='Phòng ban')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('profile_file', models.FileField(upload_to='profile_list')),
-                ('branch', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='quiz.Branch', verbose_name='Chi nhánh')),
+                ('branch', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='quiz.Branch', verbose_name='Công ty')),
             ],
             options={
                 'verbose_name': 'Tải lên danh sách thí sinh',

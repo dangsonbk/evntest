@@ -38,32 +38,7 @@
             </div>
         </nav>
         <div class="columns">
-            <div class="column is-one-quarter">
-                <div class="panel is-info">
-                    <p class="panel-heading">Thí sinh</p>
-                    <div class="card">
-                        <div class="card-content" style="min-height: 70vh;">
-                            <p class="title is-4 is-spaced">
-                                {{ user_info.user.first_name }}
-                            </p>
-                            <p><b>Nhân viên:</b> {{ user_info.full_name }}</p>
-                            <p><b>Mã số nhân viên:</b> {{ user_info.id_card }}</p>
-                            <p><b>Ngày sinh:</b> {{ user_info.dob }}</p>
-                            <p><b>Giới tính:</b> {{ user_info.get_gender_display }}</p>
-                            <p><b>Công ty:</b> {{ user_info.branch }}</p>
-                            <p><b>Phòng ban:</b> {{ user_info.department }}</p>
-                            <p><b>Chức danh:</b> {{ user_info.title }}</p>
-                            <a href="{% url 'quiz_profile' pk=user_info.id %}" class="button is-info">
-                                <span>Cập nhật</span>
-                            </a>
-                            <a href="{% url 'logout' %}" class="button is-warning">
-                                <span>Đăng xuất</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="column is-three-quarters">
+            <div class="column is-full">
                 <div class="panel is-info">
                     <p class="panel-heading">{{ main_header }}</p>
                     {% block content %}
