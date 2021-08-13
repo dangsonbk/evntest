@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_full.html" %}
 {% load i18n %}
 
 {% block title %}Login{% endblock %}
@@ -10,26 +10,24 @@
         <form class="box" id="login-form" method="post" action="{% url 'login' %}">
           {% csrf_token %}
           {% if form.errors %}
-            <p class=" label has-text-danger">
-                Tên đăng nhập hoặc mật khẩu không đúng, vui lòng thử lại.
-            </p>
+            <p class=" label has-text-danger">Tên đăng nhập hoặc mật khẩu không đúng, vui lòng thử lại.</p>
           {% endif %}
           <div class="field">
-            <label class="label has-text-left">Username</label>
+            <label class="label has-text-left">Mã dự thi</label>
             <div class="control">
               <input class="input" name="username"  type="text" placeholder="tên đăng nhập">
             </div>
           </div>
           
           <div class="field">
-            <label class="label has-text-left">Password</label>
+            <label class="label has-text-left">Mật khẩu</label>
             <div class="control">
               <input class="input" name="password"  type="password" placeholder="mật khẩu">
             </div>
           </div>
           <div class="field">
             <p class="control">
-              <button class="button is-success">Login</button>
+              <button class="button is-success">Đăng nhập</button>
             </p>
           </div>
         </form>

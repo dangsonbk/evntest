@@ -53,9 +53,6 @@
                             <p><b>Công ty:</b> {{ user_info.branch }}</p>
                             <p><b>Phòng ban:</b> {{ user_info.department }}</p>
                             <p><b>Chức danh:</b> {{ user_info.title }}</p>
-                            <a href="{% url 'quiz_profile' pk=user_info.id %}" class="button is-info">
-                                <span>Cập nhật</span>
-                            </a>
                             <a href="{% url 'logout' %}" class="button is-warning">
                                 <span>Đăng xuất</span>
                             </a>
